@@ -27,7 +27,7 @@
 <meta property="og:site_name" content="奕林的技术博客">
 <meta property="og:description" content="本文将描述如何通过BeanPostProcessor以及与其相关的技术来生成接口的实现类并自动注入bean中。实现的效果类似于Mybatis的mapper仅需要定义接口，而无需手动生成实现类。 阅读本文之前，请先了解学习BeanPostProcessor、InstantiationAwareBeanPostProcessor以及BeanDefinitionRegistryPostProcessor">
 <meta property="article:published_time" content="2020-04-15T02:18:40.000Z">
-<meta property="article:modified_time" content="2020-04-15T03:43:24.424Z">
+<meta property="article:modified_time" content="2020-04-15T05:57:25.970Z">
 <meta property="article:author" content="Elin Zhou">
 <meta property="article:tag" content="Spring">
 <meta property="article:tag" content="Java">
@@ -175,7 +175,7 @@
               <span class="post-meta-item-text">发表于</span>
               
 
-              <time title="创建时间：2020-04-15 10:18:40 / 修改时间：11:43:24" itemprop="dateCreated datePublished" datetime="2020-04-15T10:18:40+08:00">2020-04-15</time>
+              <time title="创建时间：2020-04-15 10:18:40 / 修改时间：13:57:25" itemprop="dateCreated datePublished" datetime="2020-04-15T10:18:40+08:00">2020-04-15</time>
             </span>
 
           
@@ -190,7 +190,7 @@
 
       
         <p>本文将描述如何通过<code>BeanPostProcessor</code>以及与其相关的技术来生成接口的实现类并自动注入bean中。实现的效果类似于<code>Mybatis</code>的<code>mapper</code>仅需要定义接口，而无需手动生成实现类。</p>
-<p>阅读本文之前，请先了解学习<code>BeanPostProcessor</code>、<code>InstantiationAwareBeanPostProcessor</code>以及<code>BeanDefinitionRegistryPostProcessor</code>，可以参考此文<a href="./Spring支持的扩展接口.md">Spring支持的扩展接口</a>；同时需要了解<code>FactoryBean</code>与<code>ClassPathBeanDefinitionScanner</code>的概念，参考<a href="./Spring常用工具.md">Spring常用工具</a></p>
+<p>阅读本文之前，请先了解学习<code>BeanPostProcessor</code>、<code>InstantiationAwareBeanPostProcessor</code>以及<code>BeanDefinitionRegistryPostProcessor</code>，可以参考此文<a href="/2020/04/15/spring-extend-interface/">Spring支持的扩展接口</a>；同时需要了解<code>FactoryBean</code>与<code>ClassPathBeanDefinitionScanner</code>的概念，参考<a href="/2020/04/15/spring-utils/">Spring常用工具</a></p>
 <p>为了结合实际需求，请读者设想如下场景：在对接某第三方公司时，对方提供了Http接口以供调用，如果使用常规方式，需要在代码中拼接url，然后使用诸如<code>HttpClient</code>一类的工具获取结果响应。如果这样的代码散落在项目当中，将会非常影响观感，有些同学会做一些封装，为每个http接口封装一个工具方法以供调用，但是需要写很多接口及其实现类，其代码大同小异，本文就将对此场景进行封装，最终实现仅需要开发同学创建对应的接口（<code>Interface</code>），无需写实现类，在调用端直接用<code>@Autowire</code>注入即可调用。</p>
 <p>本文主要是以学习为目的而并非解决实际问题，上述的场景也只是工作中很简单的一个场景，所以本文将使用两种方式来实现该需求，以记录更多有用的知识点。</p>
 <a id="more"></a>
@@ -268,8 +268,8 @@
         
     <div class="post-nav">
       <div class="post-nav-item">
-    <a href="/2020/04/15/database-performance-optimization/" rel="prev" title="数据库垂直切分迁移">
-      <i class="fa fa-chevron-left"></i> 数据库垂直切分迁移
+    <a href="/2020/04/15/java-skills/" rel="prev" title="Java技能图谱">
+      <i class="fa fa-chevron-left"></i> Java技能图谱
     </a></div>
       <div class="post-nav-item">
     <a href="/2020/04/15/spring-extend-interface/" rel="next" title="Spring支持的扩展接口">
