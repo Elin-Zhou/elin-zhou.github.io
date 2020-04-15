@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+<link rel="stylesheet" href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yoursite.com","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"default"},"back2top":{"enable":true,"sidebar":true,"scrollpercent":true},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="本文主要介绍Spring中所支持的常用的扩展接口，Spring非常庞大且已成体系，众多的开发者包括Spring框架的开发者不可能随意改动框架原来来实现个性化的需求，所以提供了许多扩展接口，遵循开闭原则  开闭原则定义：一个软件实体。如类&#x2F;模块&#x2F;函都应该对扩展开放，对修改关闭。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Spring支持的扩展接口">
+<meta property="og:url" content="http://yoursite.com/2020/04/15/spring-extend-interface/index.html">
+<meta property="og:site_name" content="奕林的技术博客">
+<meta property="og:description" content="本文主要介绍Spring中所支持的常用的扩展接口，Spring非常庞大且已成体系，众多的开发者包括Spring框架的开发者不可能随意改动框架原来来实现个性化的需求，所以提供了许多扩展接口，遵循开闭原则  开闭原则定义：一个软件实体。如类&#x2F;模块&#x2F;函都应该对扩展开放，对修改关闭。">
+<meta property="article:published_time" content="2020-04-15T03:17:40.000Z">
+<meta property="article:modified_time" content="2020-04-15T03:43:45.242Z">
+<meta property="article:author" content="Elin Zhou">
+<meta property="article:tag" content="Java">
+<meta property="article:tag" content="Spring">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://yoursite.com/2020/04/15/spring-extend-interface/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-Hans'
+  };
+</script>
+
+  <title>Spring支持的扩展接口 | 奕林的技术博客</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">奕林的技术博客</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">撸着代码唱着歌</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="reading-progress-bar"></div>
+
+  <a href="https://github.com/elin-zhou" class="github-corner" title="Follow me on GitHub" aria-label="Follow me on GitHub" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/04/15/spring-extend-interface/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Elin Zhou">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="奕林的技术博客">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Spring支持的扩展接口
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2020-04-15 11:17:40 / 修改时间：11:43:45" itemprop="dateCreated datePublished" datetime="2020-04-15T11:17:40+08:00">2020-04-15</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>本文主要介绍<code>Spring</code>中所支持的常用的扩展接口，<code>Spring</code>非常庞大且已成体系，众多的开发者包括<code>Spring</code>框架的开发者不可能随意改动框架原来来实现个性化的需求，所以提供了许多扩展接口，遵循<code>开闭原则</code></p>
+<blockquote>
+<p>开闭原则定义：一个软件实体。如类/模块/函都应该对扩展开放，对修改关闭。</p>
+</blockquote>
+<a id="more"></a>
+
+<h2 id="BeanPostProcessor-族"><a href="#BeanPostProcessor-族" class="headerlink" title="BeanPostProcessor 族"></a>BeanPostProcessor 族</h2><p>BeanPostProcessor是Spring实现『开闭原则』的一大体现，Spring 会在启动的不同阶段调用不同的BeanPostProcessor实现类，而这些BeanPostProcessor实现类由开发者自行实现（也有许多Spring内置的BeanPostProcessor）来实现启动中的各类需求。</p>
+<p>实现了<code>BeanPostProcessor</code>及其子类接口的<code>Bean</code>将会被<code>BeanFactory</code>在执行<code>refresh</code>中某些特殊阶段进行回调，可以在这些方法内部修改或添加类似<code>BeanDefinition</code>、创建<code>Bean</code>代理等操作。</p>
+<p>很多<code>Spring</code>框架内部使用了<code>BeanPostProcessor</code>来实现一些功能，例如<code>@Autowired</code>功能是通过<code>AutowiredAnnotationBeanPostProcessor</code>来实现。</p>
+<h3 id="BeanPostProcessor"><a href="#BeanPostProcessor" class="headerlink" title="BeanPostProcessor"></a>BeanPostProcessor</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">BeanPostProcessor</span> </span>&#123;</span><br><span class="line">   <span class="function">Object <span class="title">postProcessBeforeInitialization</span><span class="params">(Object bean, String beanName)</span> <span class="keyword">throws</span> BeansException</span>;</span><br><span class="line">   <span class="function">Object <span class="title">postProcessAfterInitialization</span><span class="params">(Object bean, String beanName)</span> <span class="keyword">throws</span> BeansException</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<h4 id="postProcessBeforeInitialization"><a href="#postProcessBeforeInitialization" class="headerlink" title="postProcessBeforeInitialization"></a>postProcessBeforeInitialization</h4><p>该方法将在<code>Bean</code>实例化完成，并注入完属性后被调用，但优先于<code>init-method</code>、<code>InitializingBean#afterPropertiesSet</code>和<code>InitializingBean#afterPropertiesSet</code>。</p>
+<p>可以在该方法中返回包装对象或代理对象。</p>
+<p>如果此方法返回<code>null</code>，那么后续的<code>BeanPostProcessor</code>将不会被调用。</p>
+<h4 id="postProcessAfterInitialization"><a href="#postProcessAfterInitialization" class="headerlink" title="postProcessAfterInitialization"></a>postProcessAfterInitialization</h4><p>该方法在<code>postProcessBeforeInitialization</code>、<code>InitializingBean#afterPropertiesSet</code>、<code>init-method</code>调用完成之后被调用。</p>
+<p>可以在该方法中返回包装对象或代理对象。</p>
+<p>如果此方法返回<code>null</code>，那么后续的<code>BeanPostProcessor</code>将不会被调用。</p>
+<h3 id="InstantiationAwareBeanPostProcessor"><a href="#InstantiationAwareBeanPostProcessor" class="headerlink" title="InstantiationAwareBeanPostProcessor"></a>InstantiationAwareBeanPostProcessor</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">InstantiationAwareBeanPostProcessor</span> <span class="keyword">extends</span> <span class="title">BeanPostProcessor</span> </span>&#123;</span><br><span class="line">   <span class="function">Object <span class="title">postProcessBeforeInstantiation</span><span class="params">(Class&lt;?&gt; beanClass, String beanName)</span> <span class="keyword">throws</span> BeansException</span>;</span><br><span class="line"></span><br><span class="line">   <span class="function"><span class="keyword">boolean</span> <span class="title">postProcessAfterInstantiation</span><span class="params">(Object bean, String beanName)</span> <span class="keyword">throws</span> BeansException</span>;</span><br><span class="line"></span><br><span class="line">   <span class="function">PropertyValues <span class="title">postProcessPropertyValues</span><span class="params">(</span></span></span><br><span class="line"><span class="function"><span class="params">         PropertyValues pvs, PropertyDescriptor[] pds, Object bean, String beanName)</span> <span class="keyword">throws</span> BeansException</span>;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="postProcessBeforeInstantiation"><a href="#postProcessBeforeInstantiation" class="headerlink" title="postProcessBeforeInstantiation"></a>postProcessBeforeInstantiation</h4><p>该方法在实例化<code>Bean</code>之前调用，可以在此处返回代理对象。</p>
+<p>如果该方法返回值不为<code>null</code>，那么其余的实例化操作将会被短路<code>short-circuited</code>，包括其余的<code>InstantiationAwareBeanPostProcessor</code>和实例属性的注入（<code>populate</code>），但是当前<code>InstantiationAwareBeanPostProcessor#postProcessAfterInstantiation</code>方法将仍会被调用。</p>
+<h4 id="postProcessAfterInstantiation"><a href="#postProcessAfterInstantiation" class="headerlink" title="postProcessAfterInstantiation"></a>postProcessAfterInstantiation</h4><p>该方法在实例化<code>Bean</code>之后，注入属性之前被调用。</p>
+<p>如果该方法返回<code>true</code>，那么后续的属性注入将被执行；如果返回<code>false</code>，那么将不执行属性的注入，也不会执行其他<code>InstantiationAwareBeanPostProcessor#postProcessAfterInstantiation</code>方法。</p>
+<p>该方法适合在自动注入属性前进行自定义字段的注入。</p>
+<h4 id="postProcessPropertyValues"><a href="#postProcessPropertyValues" class="headerlink" title="postProcessPropertyValues"></a>postProcessPropertyValues</h4><p>该方法在<code>postProcessAfterInstantiation</code>方法调用之后，注入参数之前被调用，可以在此方法中添加或修改需要注入到<code>Bean</code>中的参数。</p>
+<p><code>@Resource</code>、<code>@Autowire</code>等注解就是在此处实现自动注入的，扫描对应字段的注解，并将获取到的参数值传入该方法返回值<code>PropertyValues</code>中，后续Spring 将自动把参数注入到对应的字段中。</p>
+<p>如果该方法返回null，将不会执行属性的注入，也不会执行其他<code>InstantiationAwareBeanPostProcessor#postProcessPropertyValues</code>方法。</p>
+<h3 id="SmartInstantiationAwareBeanPostProcessor"><a href="#SmartInstantiationAwareBeanPostProcessor" class="headerlink" title="SmartInstantiationAwareBeanPostProcessor"></a>SmartInstantiationAwareBeanPostProcessor</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">SmartInstantiationAwareBeanPostProcessor</span> <span class="keyword">extends</span> <span class="title">InstantiationAwareBeanPostProcessor</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">   Class&lt;?&gt; predictBeanType(Class&lt;?&gt; beanClass, String beanName) <span class="keyword">throws</span> BeansException;</span><br><span class="line"></span><br><span class="line">   Constructor&lt;?&gt;[] determineCandidateConstructors(Class&lt;?&gt; beanClass, String beanName) <span class="keyword">throws</span> BeansException;</span><br><span class="line"></span><br><span class="line">   <span class="function">Object <span class="title">getEarlyBeanReference</span><span class="params">(Object bean, String beanName)</span> <span class="keyword">throws</span> BeansException</span>;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="predictBeanType"><a href="#predictBeanType" class="headerlink" title="predictBeanType"></a>predictBeanType</h4><p>预测并返回<code>Bean</code>的实际类型，如果无法预测可以返回<code>null</code>，一般在<code>BeanDefinition</code>无法确定<code>Bean</code>类型时调用。</p>
+<h4 id="determineCandidateConstructors"><a href="#determineCandidateConstructors" class="headerlink" title="determineCandidateConstructors"></a>determineCandidateConstructors</h4><p>在<code>Bean</code>实例化前被调用，用来确认实例化需要调用的<code>构造方法</code>候选列表。</p>
+<p>如果返回不为<code>null</code>，那么不会执行其他的<code>SmartInstantiationAwareBeanPostProcessor#determineCandidateConstructors</code>，Spring将会在该返回列表中选择一个方法进行调用。如果所有的<code>SmartInstantiationAwareBeanPostProcessor#determineCandidateConstructors</code>均返回<code>null</code>，那么将使用默认的<code>无参构造方法</code>进行调用.</p>
+<h4 id="getEarlyBeanReference"><a href="#getEarlyBeanReference" class="headerlink" title="getEarlyBeanReference"></a>getEarlyBeanReference</h4><p>出现循环依赖时将会被调用，通过此方法返回一个<code>Bean</code>的引用。</p>
+<h3 id="MergedBeanDefinitionPostProcessor"><a href="#MergedBeanDefinitionPostProcessor" class="headerlink" title="MergedBeanDefinitionPostProcessor"></a>MergedBeanDefinitionPostProcessor</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">MergedBeanDefinitionPostProcessor</span> <span class="keyword">extends</span> <span class="title">BeanPostProcessor</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">   <span class="function"><span class="keyword">void</span> <span class="title">postProcessMergedBeanDefinition</span><span class="params">(RootBeanDefinition beanDefinition, Class&lt;?&gt; beanType, String beanName)</span></span>;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<h4 id="postProcessMergedBeanDefinition"><a href="#postProcessMergedBeanDefinition" class="headerlink" title="postProcessMergedBeanDefinition"></a>postProcessMergedBeanDefinition</h4><p>该方法在合并完<code>Bean</code>定义后被调用。</p>
+<p>例如<code>AutowiredAnnotationBeanPostProcessor</code>将在此处解析所有带<code>@Autowire</code>注解的参数。</p>
+<h2 id="BeanFactoryPostProcessor-族"><a href="#BeanFactoryPostProcessor-族" class="headerlink" title="BeanFactoryPostProcessor 族"></a>BeanFactoryPostProcessor 族</h2><h3 id="BeanFactoryPostProcessor"><a href="#BeanFactoryPostProcessor" class="headerlink" title="BeanFactoryPostProcessor"></a>BeanFactoryPostProcessor</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">BeanFactoryPostProcessor</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">   <span class="function"><span class="keyword">void</span> <span class="title">postProcessBeanFactory</span><span class="params">(ConfigurableListableBeanFactory beanFactory)</span> <span class="keyword">throws</span> BeansException</span>;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="postProcessBeanFactory"><a href="#postProcessBeanFactory" class="headerlink" title="postProcessBeanFactory"></a>postProcessBeanFactory</h4><p>该方法在所有<code>BeanDefinition</code>被加载完成后，<code>Bean</code>初始化之前被调用。</p>
+<p>可以在此处修改已加载的<code>BeanDefinition</code>，或添加自定义的<code>BeanDefinition</code>，来实现动态注册<code>Bean</code>。</p>
+<h3 id="BeanDefinitionRegistryPostProcessor"><a href="#BeanDefinitionRegistryPostProcessor" class="headerlink" title="BeanDefinitionRegistryPostProcessor"></a>BeanDefinitionRegistryPostProcessor</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">BeanDefinitionRegistryPostProcessor</span> <span class="keyword">extends</span> <span class="title">BeanFactoryPostProcessor</span> </span>&#123;</span><br><span class="line">   <span class="function"><span class="keyword">void</span> <span class="title">postProcessBeanDefinitionRegistry</span><span class="params">(BeanDefinitionRegistry registry)</span> <span class="keyword">throws</span> BeansException</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<h4 id="postProcessBeanDefinitionRegistry"><a href="#postProcessBeanDefinitionRegistry" class="headerlink" title="postProcessBeanDefinitionRegistry"></a>postProcessBeanDefinitionRegistry</h4><p>该方法在所有<code>BeanDefinition</code>被加载完成后，<code>BeanFactoryPostProcessor#postProcessBeanFactory</code>之前被调用。</p>
+<p>可以在此处修改已加载的<code>BeanDefinition</code>，或添加自定义的<code>BeanDefinition</code>，来实现动态注册<code>Bean</code>；也可以在此方法中注册其他<code>BeanDefinitionRegistryPostProcessor</code>，但如果当前Bean也是被其他<code>BeanDefinitionRegistryPostProcessor#postProcessBeanFactory</code>加载的，那么当前<code>Bean</code>加载的<code>BeanDefinitionRegistryPostProcessor</code>将没有机会被执行。</p>
+<h2 id="Aware-族"><a href="#Aware-族" class="headerlink" title="Aware 族"></a>Aware 族</h2><p>实现了<code>Aware</code>接口的<code>Bean</code>将会在特定的场景中被<code>Spring</code>回调，并传入对应的参数供<code>Bean</code>使用。</p>
+<h3 id="BeanNameAware"><a href="#BeanNameAware" class="headerlink" title="BeanNameAware"></a>BeanNameAware</h3><h4 id="setBeanName"><a href="#setBeanName" class="headerlink" title="setBeanName"></a>setBeanName</h4><p>该方法在<code>Bean</code>实例化完成并注入属性后，<code>BeanPostProcessor#postProcessBeforeInitialization</code>方法前被调用。</p>
+<p><code>Bean</code>的名称将会从入参中被传入，该name可能会被添加例如<code>#</code>之类的前缀标识符，如果想要获得原始的name，可以调用<code>BeanFactoryUtils#originalBeanName(String)</code>。</p>
+<h3 id="BeanClassLoaderAware"><a href="#BeanClassLoaderAware" class="headerlink" title="BeanClassLoaderAware"></a>BeanClassLoaderAware</h3><h4 id="setBeanClassLoader"><a href="#setBeanClassLoader" class="headerlink" title="setBeanClassLoader"></a>setBeanClassLoader</h4><p>该方法在<code>Bean</code>实例化完成并注入属性后，<code>BeanPostProcessor#postProcessBeforeInitialization</code>方法前被调用。</p>
+<p><code>Bean</code>的<code>classLoader</code>将会被传入。</p>
+<h3 id="BeanFactoryAware"><a href="#BeanFactoryAware" class="headerlink" title="BeanFactoryAware"></a>BeanFactoryAware</h3><h4 id="setBeanFactory"><a href="#setBeanFactory" class="headerlink" title="setBeanFactory"></a>setBeanFactory</h4><p>该方法在<code>Bean</code>实例化完成并注入属性后，<code>BeanPostProcessor#postProcessBeforeInitialization</code>方法前被调用。</p>
+<p>持有当前<code>Bean</code>的<code>BeanFactory</code>将会被传入。</p>
+<h3 id="EnvironmentAware"><a href="#EnvironmentAware" class="headerlink" title="EnvironmentAware"></a>EnvironmentAware</h3><h4 id="setEnvironment"><a href="#setEnvironment" class="headerlink" title="setEnvironment"></a>setEnvironment</h4><p>该方法将被<code>ApplicationContextAwareProcessor#postProcessBeforeInitialization</code>调用，即在<code>Bean</code>实例化完成，并注入完属性后被调用，但优先于<code>InitializingBean#afterPropertiesSet</code>和<code>init-method</code>。</p>
+<p>将从入参传入<code>Environment</code></p>
+<h3 id="EmbeddedValueResolverAware"><a href="#EmbeddedValueResolverAware" class="headerlink" title="EmbeddedValueResolverAware"></a>EmbeddedValueResolverAware</h3><h4 id="setEmbeddedValueResolver"><a href="#setEmbeddedValueResolver" class="headerlink" title="setEmbeddedValueResolver"></a>setEmbeddedValueResolver</h4><p>该方法将被<code>ApplicationContextAwareProcessor#postProcessBeforeInitialization</code>调用，即在<code>Bean</code>实例化完成，并注入完属性后被调用，但优先于<code>InitializingBean#afterPropertiesSet</code>和<code>init-method</code>。</p>
+<p>将从入参传入<code>StringValueResolver</code></p>
+<h3 id="ResourceLoaderAware"><a href="#ResourceLoaderAware" class="headerlink" title="ResourceLoaderAware"></a>ResourceLoaderAware</h3><h4 id="setResourceLoader"><a href="#setResourceLoader" class="headerlink" title="setResourceLoader"></a>setResourceLoader</h4><p>该方法将被<code>ApplicationContextAwareProcessor#postProcessBeforeInitialization</code>调用，即在<code>Bean</code>实例化完成，并注入完属性后被调用，但优先于<code>InitializingBean#afterPropertiesSet</code>和<code>init-method</code>。</p>
+<p>将从入参传入<code>ResourceLoader</code></p>
+<h3 id="ApplicationEventPublisherAware"><a href="#ApplicationEventPublisherAware" class="headerlink" title="ApplicationEventPublisherAware"></a>ApplicationEventPublisherAware</h3><h4 id="setApplicationEventPublisher"><a href="#setApplicationEventPublisher" class="headerlink" title="setApplicationEventPublisher"></a>setApplicationEventPublisher</h4><p>该方法将被<code>ApplicationContextAwareProcessor#postProcessBeforeInitialization</code>调用，即在<code>Bean</code>实例化完成，并注入完属性后被调用，但优先于<code>InitializingBean#afterPropertiesSet</code>和<code>init-method</code>。</p>
+<p>将从入参传入<code>ApplicationEventPublisher</code></p>
+<h3 id="MessageSourceAware"><a href="#MessageSourceAware" class="headerlink" title="MessageSourceAware"></a>MessageSourceAware</h3><h4 id="setMessageSource"><a href="#setMessageSource" class="headerlink" title="setMessageSource"></a>setMessageSource</h4><p>该方法将被<code>ApplicationContextAwareProcessor#postProcessBeforeInitialization</code>调用，即在<code>Bean</code>实例化完成，并注入完属性后被调用，但优先于<code>InitializingBean#afterPropertiesSet</code>和<code>init-method</code>。</p>
+<p>将从入参传入<code>MessageSource</code></p>
+<h3 id="ApplicationContextAware"><a href="#ApplicationContextAware" class="headerlink" title="ApplicationContextAware"></a>ApplicationContextAware</h3><h4 id="setApplicationContext"><a href="#setApplicationContext" class="headerlink" title="setApplicationContext"></a>setApplicationContext</h4><p>该方法将被<code>ApplicationContextAwareProcessor#postProcessBeforeInitialization</code>调用，即在<code>Bean</code>实例化完成，并注入完属性后被调用，但优先于<code>InitializingBean#afterPropertiesSet</code>和<code>init-method</code>。</p>
+<p>将从入参传入<code>ApplicationContext</code></p>
+<h2 id="Other"><a href="#Other" class="headerlink" title="Other"></a>Other</h2><h3 id="FactoryBean"><a href="#FactoryBean" class="headerlink" title="FactoryBean"></a>FactoryBean</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">FactoryBean</span>&lt;<span class="title">T</span>&gt; </span>&#123;</span><br><span class="line">   <span class="function">T <span class="title">getObject</span><span class="params">()</span> <span class="keyword">throws</span> Exception</span>;</span><br><span class="line">   Class&lt;?&gt; getObjectType();</span><br><span class="line">   <span class="function"><span class="keyword">boolean</span> <span class="title">isSingleton</span><span class="params">()</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<p><code>FactoryBean</code>是一个定义工厂<code>Bean</code>的接口，如果一个<code>Bean</code>实现了这个接口，那么<code>Spring</code>在初始化的时候会创建该类型的实例，在通过该实例创建其对应的<code>Bean</code>。</p>
+<p><code>FactoryBean</code>有三个方法需要子类来实现</p>
+<p><code>isSingleton</code>方法用来返回当前<code>FactoryBean</code>创建的<code>Bean</code>是否为单例，如果返回<code>true</code>表示是单例(<code>singleton</code>)模式的<code>Bean</code>，如果返回<code>false</code>，表示是原型模式(<code>prototype</code>)的<code>Bean</code>。</p>
+<p><code>getObjectType</code>方法用来返回该<code>FactoryBean</code>将会创建的<code>Bean</code>的类型。</p>
+<p><code>getObject</code>方法返回创建的<code>Bean</code>，当<code>Spring</code>需要通过<code>FactoryBean</code>创建一个新的<code>Bean</code>的时候，将会调用<code>FactoryBean#getObject</code>来获取<code>Bean</code>并放入<code>IOC</code>容器中。</p>
+<h4 id="AbstractFactoryBean"><a href="#AbstractFactoryBean" class="headerlink" title="AbstractFactoryBean"></a>AbstractFactoryBean</h4><p><code>AbstractFactoryBean</code>继承自<code>FactoryBean</code>，提供了<code>getObject</code>方法的默认实现并添加了两个抽象方法需要子类实现。一般情况下，<code>AbstractFactoryBean</code>需要实现四个方法</p>
+<p><code>isSingleton</code>与<code>FactoryBean</code>中的<code>isSingleton</code>方法相同。</p>
+<p><code>getObjectType</code>与<code>FactoryBean</code>中的<code>getObjectType</code>方法相同。</p>
+<p><code>createInstance</code>与<code>FactoryBean</code>中的<code>createInstance</code>方法相同，即<code>AbstractFactoryBean</code>中不需要实现<code>createInstance</code>方法。</p>
+<p><code>destroyInstance</code>方法将在<code>Bean</code>被销毁前调用，用来手动处理<code>Bean</code>销毁前需要处理的工作，例如关闭资源等。</p>
+<h3 id="InitializingBean"><a href="#InitializingBean" class="headerlink" title="InitializingBean"></a>InitializingBean</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">InitializingBean</span> </span>&#123;</span><br><span class="line">   <span class="function"><span class="keyword">void</span> <span class="title">afterPropertiesSet</span><span class="params">()</span> <span class="keyword">throws</span> Exception</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>实现了<code>InitializingBean</code>的<code>Bean</code>将在实例化完成后被回调，具体时机是<code>Bean</code>属性注入完成、<code>BeanNameAware</code>、<code>BeanClassLoaderAware</code>、<code>BeanFactoryAware</code>三类<code>Aware</code>回调完成、<code>BeanPostProcessor#postProcessBeforeInitialization</code>调用完成之后，<code>BeanPostProcessor#postProcessAfterInitialization</code>之前。</p>
+<p>此时，<code>Bean</code>已经基本初始化完成，此时可以在此方法内部做诸如参数校验、最终初始化等操作。</p>
+<h3 id="DisposableBean"><a href="#DisposableBean" class="headerlink" title="DisposableBean"></a>DisposableBean</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">DisposableBean</span> </span>&#123;</span><br><span class="line">   <span class="function"><span class="keyword">void</span> <span class="title">destroy</span><span class="params">()</span> <span class="keyword">throws</span> Exception</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>实现了<code>DisposableBean</code>的<code>Bean</code>将在销毁前被回调。</p>
+<p>可以在该方法内部做最后的清理工作，例如关闭资源等。</p>
+<h3 id="ApplicationRunner"><a href="#ApplicationRunner" class="headerlink" title="ApplicationRunner"></a>ApplicationRunner</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">ApplicationRunner</span> </span>&#123;</span><br><span class="line">   <span class="function"><span class="keyword">void</span> <span class="title">run</span><span class="params">(ApplicationArguments args)</span> <span class="keyword">throws</span> Exception</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><code>Spring</code>将在刷新完上下文之后，依次调用所有实现了<code>ApplicationRunner</code>接口<code>Bean</code>的’run’方法。</p>
+<h3 id="CommandLineRunner"><a href="#CommandLineRunner" class="headerlink" title="CommandLineRunner"></a>CommandLineRunner</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">CommandLineRunner</span> </span>&#123;</span><br><span class="line">   <span class="function"><span class="keyword">void</span> <span class="title">run</span><span class="params">(String... args)</span> <span class="keyword">throws</span> Exception</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><code>Spring</code>将在刷新完上下文之后，依次调用所有实现了<code>CommandLineRunner</code>接口<code>Bean</code>的<code>run</code>方法，与<code>ApplicationRunner</code>的差别是<code>CommandLineRunner</code>会将启动命令行中的参数传入<code>run</code>方法。</p>
+<h3 id="ApplicationListener"><a href="#ApplicationListener" class="headerlink" title="ApplicationListener"></a>ApplicationListener</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">ApplicationListener</span>&lt;<span class="title">E</span> <span class="keyword">extends</span> <span class="title">ApplicationEvent</span>&gt; <span class="keyword">extends</span> <span class="title">EventListener</span> </span>&#123;</span><br><span class="line">   <span class="function"><span class="keyword">void</span> <span class="title">onApplicationEvent</span><span class="params">(E event)</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>实现<code>ApplicationListener</code>的<code>Bean</code>将在对应<code>ApplicationEvent</code>事件发生时被回调，对应的事件为<code>ApplicationListener</code>定义的类型参数，可以通过<code>@EventListener</code>实现类似效果。</p>
+<p>可以通过<code>ApplicationEventPublisher#publishEvent</code>发布消息</p>
+<h3 id="Lifecycle"><a href="#Lifecycle" class="headerlink" title="Lifecycle"></a>Lifecycle</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">Lifecycle</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">   <span class="function"><span class="keyword">void</span> <span class="title">start</span><span class="params">()</span></span>;</span><br><span class="line"></span><br><span class="line">   <span class="function"><span class="keyword">void</span> <span class="title">stop</span><span class="params">()</span></span>;</span><br><span class="line"></span><br><span class="line">   <span class="function"><span class="keyword">boolean</span> <span class="title">isRunning</span><span class="params">()</span></span>;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>实现了<code>Lifecycle</code>接口的<code>Bean</code>，容器会在生命周期中的不同阶段回调对应的方法，可以在这些方法中执行特定的操作。</p>
+<p><code>start</code>会在容器启动的最后阶段被调用，具体时机是创建完所有的<code>Bean</code>之后，<code>ContextRefreshedEvent</code>消息广播、调用<code>ApplicationRunner#run</code>方法之前。一般情况下，<code>Spring</code>容器不会调用start()方法，所以<code>Lifecycle#start</code>不会被调用，所以需要使用<code>SmartLifecycle</code>。</p>
+<p><code>stop</code>会在容器关闭前被调用，具体时机是<code>ContextClosedEvent</code>消息广播之后，<code>DisposableBean#destory</code>方法调用之前。</p>
+<p><code>isRunning</code>用来返回当前<code>Bean</code>是否是运行中，如果返回<code>true</code>，那么不会执行<code>start</code>方法，会执行<code>stop</code>方法；如果返回<code>false</code>，那么会执行<code>start</code>方法，不会执行<code>stop</code>方法。</p>
+<h3 id="SmartLifecycle"><a href="#SmartLifecycle" class="headerlink" title="SmartLifecycle"></a>SmartLifecycle</h3><p><code>SmartLifecycle</code>在<code>Lifecycle</code>基础上实现了<code>Phased</code>类，可以用来控制不同<code>SmartLifecycle</code>的执行顺序，并且在容器进行刷新时也会调用<code>start</code>方法。</p>
+<h3 id="ImportBeanDefinitionRegistrar"><a href="#ImportBeanDefinitionRegistrar" class="headerlink" title="ImportBeanDefinitionRegistrar"></a>ImportBeanDefinitionRegistrar</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">ImportBeanDefinitionRegistrar</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">   <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">registerBeanDefinitions</span><span class="params">(</span></span></span><br><span class="line"><span class="function"><span class="params">         AnnotationMetadata importingClassMetadata, BeanDefinitionRegistry registry)</span></span>;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>该接口的作用类似与<code>BeanDefinitionRegistryPostProcessor</code>，可以在此处修改已加载的<code>BeanDefinition</code>，或添加自定义的<code>BeanDefinition</code>，来实现动态注册<code>Bean</code>；</p>
+<p>不同于其他的组件只需要注入<code>IOC</code>容器即可被自动发现并被调用，<code>BeanDefinitionRegistryPostProcessor</code>子类需要通过<code>@Import</code>注解引入方可使用。</p>
+<p><code>registerBeanDefinitions</code>方法将会被<code>ConfigurationClassPostProcessor#postProcessBeanDefinitionRegistry</code>调用，<code>ConfigurationClassPostProcessor</code>是通过实现了<code>BeanDefinitionRegistryPostProcessor</code>接口而获得注册<code>BeanDefinition</code>的能力，所以被调用时机与<code>BeanDefinitionRegistryPostProcessor</code>一致。</p>
+<h2 id="各类接口调用时机"><a href="#各类接口调用时机" class="headerlink" title="各类接口调用时机"></a>各类接口调用时机</h2><ol>
+<li>BeanDefinitionRegistryPostProcessor#postProcessBeanDefinitionRegistry</li>
+<li>BeanDefinitionRegistryPostProcessor#postProcessBeanFactory<ol>
+<li>ImportBeanDefinitionRegistrar#registerBeanDefinitions</li>
+</ol>
+</li>
+<li>BeanFactoryPostProcessor#postProcessBeanFactory</li>
+<li>InstantiationAwareBeanPostProcessor#postProcessBeforeInstantiation</li>
+<li>创建<code>Bean</code>实例</li>
+<li>MergedBeanDefinitionPostProcessor#postProcessMergedBeanDefinition</li>
+<li>InstantiationAwareBeanPostProcessor#postProcessAfterInstantiation</li>
+<li>InstantiationAwareBeanPostProcessor#postProcessPropertyValues</li>
+<li><code>Bean</code>属性注入</li>
+<li>BeanNameAware#setBeanName</li>
+<li>BeanClassLoaderAware#setBeanClassLoader</li>
+<li>BeanFactoryAware#setBeanFactory</li>
+<li>BeanPostProcessor#postProcessBeforeInitialization<ol>
+<li>EnvironmentAware#setEnvironment</li>
+<li>EmbeddedValueResolverAware#setEmbeddedValueResolver</li>
+<li>ResourceLoaderAware#setResourceLoader</li>
+<li>ApplicationEventPublisherAware#setApplicationEventPublisher</li>
+<li>MessageSourceAware#setMessageSource</li>
+<li>ApplicationContextAware#setApplicationContext</li>
+</ol>
+</li>
+<li>InitializingBean#afterPropertiesSet</li>
+<li>执行<code>init-method</code></li>
+<li>BeanPostProcessor#postProcessAfterInitialization</li>
+<li>Lifecycle#start</li>
+<li>ApplicationRunner#run</li>
+<li>CommandLineRunner#run</li>
+<li>广播ContextRefreshedEvent</li>
+</ol>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div></div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    打赏
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/images/wechatpay.JPG" alt="Elin Zhou 微信支付">
+        <p>微信支付</p>
+      </div>
+      
+      <div style="display: inline-block;">
+        <img src="/images/alipay.JPG" alt="Elin Zhou 支付宝">
+        <p>支付宝</p>
+      </div>
+
+  </div>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Java/" rel="tag"># Java</a>
+              <a href="/tags/Spring/" rel="tag"># Spring</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/04/15/bean-post-processor-practice/" rel="prev" title="BeanPostProcessor实践之生成动态实现类">
+      <i class="fa fa-chevron-left"></i> BeanPostProcessor实践之生成动态实现类
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2020/04/15/spring-utils/" rel="next" title="Spring常用工具">
+      Spring常用工具 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#BeanPostProcessor-族"><span class="nav-number">1.</span> <span class="nav-text">BeanPostProcessor 族</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#BeanPostProcessor"><span class="nav-number">1.1.</span> <span class="nav-text">BeanPostProcessor</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#postProcessBeforeInitialization"><span class="nav-number">1.1.1.</span> <span class="nav-text">postProcessBeforeInitialization</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#postProcessAfterInitialization"><span class="nav-number">1.1.2.</span> <span class="nav-text">postProcessAfterInitialization</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#InstantiationAwareBeanPostProcessor"><span class="nav-number">1.2.</span> <span class="nav-text">InstantiationAwareBeanPostProcessor</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#postProcessBeforeInstantiation"><span class="nav-number">1.2.1.</span> <span class="nav-text">postProcessBeforeInstantiation</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#postProcessAfterInstantiation"><span class="nav-number">1.2.2.</span> <span class="nav-text">postProcessAfterInstantiation</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#postProcessPropertyValues"><span class="nav-number">1.2.3.</span> <span class="nav-text">postProcessPropertyValues</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#SmartInstantiationAwareBeanPostProcessor"><span class="nav-number">1.3.</span> <span class="nav-text">SmartInstantiationAwareBeanPostProcessor</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#predictBeanType"><span class="nav-number">1.3.1.</span> <span class="nav-text">predictBeanType</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#determineCandidateConstructors"><span class="nav-number">1.3.2.</span> <span class="nav-text">determineCandidateConstructors</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#getEarlyBeanReference"><span class="nav-number">1.3.3.</span> <span class="nav-text">getEarlyBeanReference</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#MergedBeanDefinitionPostProcessor"><span class="nav-number">1.4.</span> <span class="nav-text">MergedBeanDefinitionPostProcessor</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#postProcessMergedBeanDefinition"><span class="nav-number">1.4.1.</span> <span class="nav-text">postProcessMergedBeanDefinition</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#BeanFactoryPostProcessor-族"><span class="nav-number">2.</span> <span class="nav-text">BeanFactoryPostProcessor 族</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#BeanFactoryPostProcessor"><span class="nav-number">2.1.</span> <span class="nav-text">BeanFactoryPostProcessor</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#postProcessBeanFactory"><span class="nav-number">2.1.1.</span> <span class="nav-text">postProcessBeanFactory</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#BeanDefinitionRegistryPostProcessor"><span class="nav-number">2.2.</span> <span class="nav-text">BeanDefinitionRegistryPostProcessor</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#postProcessBeanDefinitionRegistry"><span class="nav-number">2.2.1.</span> <span class="nav-text">postProcessBeanDefinitionRegistry</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Aware-族"><span class="nav-number">3.</span> <span class="nav-text">Aware 族</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#BeanNameAware"><span class="nav-number">3.1.</span> <span class="nav-text">BeanNameAware</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#setBeanName"><span class="nav-number">3.1.1.</span> <span class="nav-text">setBeanName</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#BeanClassLoaderAware"><span class="nav-number">3.2.</span> <span class="nav-text">BeanClassLoaderAware</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#setBeanClassLoader"><span class="nav-number">3.2.1.</span> <span class="nav-text">setBeanClassLoader</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#BeanFactoryAware"><span class="nav-number">3.3.</span> <span class="nav-text">BeanFactoryAware</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#setBeanFactory"><span class="nav-number">3.3.1.</span> <span class="nav-text">setBeanFactory</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#EnvironmentAware"><span class="nav-number">3.4.</span> <span class="nav-text">EnvironmentAware</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#setEnvironment"><span class="nav-number">3.4.1.</span> <span class="nav-text">setEnvironment</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#EmbeddedValueResolverAware"><span class="nav-number">3.5.</span> <span class="nav-text">EmbeddedValueResolverAware</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#setEmbeddedValueResolver"><span class="nav-number">3.5.1.</span> <span class="nav-text">setEmbeddedValueResolver</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#ResourceLoaderAware"><span class="nav-number">3.6.</span> <span class="nav-text">ResourceLoaderAware</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#setResourceLoader"><span class="nav-number">3.6.1.</span> <span class="nav-text">setResourceLoader</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#ApplicationEventPublisherAware"><span class="nav-number">3.7.</span> <span class="nav-text">ApplicationEventPublisherAware</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#setApplicationEventPublisher"><span class="nav-number">3.7.1.</span> <span class="nav-text">setApplicationEventPublisher</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#MessageSourceAware"><span class="nav-number">3.8.</span> <span class="nav-text">MessageSourceAware</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#setMessageSource"><span class="nav-number">3.8.1.</span> <span class="nav-text">setMessageSource</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#ApplicationContextAware"><span class="nav-number">3.9.</span> <span class="nav-text">ApplicationContextAware</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#setApplicationContext"><span class="nav-number">3.9.1.</span> <span class="nav-text">setApplicationContext</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Other"><span class="nav-number">4.</span> <span class="nav-text">Other</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#FactoryBean"><span class="nav-number">4.1.</span> <span class="nav-text">FactoryBean</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#AbstractFactoryBean"><span class="nav-number">4.1.1.</span> <span class="nav-text">AbstractFactoryBean</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#InitializingBean"><span class="nav-number">4.2.</span> <span class="nav-text">InitializingBean</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#DisposableBean"><span class="nav-number">4.3.</span> <span class="nav-text">DisposableBean</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#ApplicationRunner"><span class="nav-number">4.4.</span> <span class="nav-text">ApplicationRunner</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#CommandLineRunner"><span class="nav-number">4.5.</span> <span class="nav-text">CommandLineRunner</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#ApplicationListener"><span class="nav-number">4.6.</span> <span class="nav-text">ApplicationListener</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Lifecycle"><span class="nav-number">4.7.</span> <span class="nav-text">Lifecycle</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#SmartLifecycle"><span class="nav-number">4.8.</span> <span class="nav-text">SmartLifecycle</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#ImportBeanDefinitionRegistrar"><span class="nav-number">4.9.</span> <span class="nav-text">ImportBeanDefinitionRegistrar</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#各类接口调用时机"><span class="nav-number">5.</span> <span class="nav-text">各类接口调用时机</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Elin Zhou</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">6</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-name">标签</span>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+        <div class="back-to-top motion-element">
+          <i class="fa fa-arrow-up"></i>
+          <span>0%</span>
+        </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Elin Zhou</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
