@@ -1,6 +1,6 @@
-http://www.xxelin.com/2020/04/17/How-to-Synchronize-Blocks-by-the-Value-of-the-Object-in-Java/
-http://www.xxelin.com/2020/04/15/spring-utils/
-http://www.xxelin.com/2020/04/15/spring-extend-interface/
-http://www.xxelin.com/2020/04/15/bean-post-processor-practice/
-http://www.xxelin.com/2020/04/15/java-skills/
-http://www.xxelin.com/2020/04/15/database-performance-optimization/
+https://www.xxelin.com/2020/04/17/How-to-Synchronize-Blocks-by-the-Value-of-the-Object-in-Java/
+https://www.xxelin.com/2020/04/15/spring-utils/
+https://www.xxelin.com/2020/04/15/spring-extend-interface/
+https://www.xxelin.com/2020/04/15/bean-post-processor-practice/
+https://www.xxelin.com/2020/04/15/java-skills/
+https://www.xxelin.com/2020/04/15/database-performance-optimization/

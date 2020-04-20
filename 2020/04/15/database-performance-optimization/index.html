@@ -23,21 +23,21 @@
   <meta name="description" content="背景原来的业务所有数据库都在一个实例上，配置为8C64G 1TB。由于业务快速增长，在业务高峰期时，数据库QPS大约12k+，频繁出现数据库CPU使用率达到100%的情况。 问题分析短期问题可以通过升级数据库配置解决，但是单机配置有上限，且约往后越不划算，单机的瓶颈会越来越明显，所以需要考虑对数据库进行拆分。 水平拆分OR垂直拆分一般情况下，考虑数据拆分时，分为水平拆分和垂直拆分两个方向。根据经验">
 <meta property="og:type" content="article">
 <meta property="og:title" content="数据库垂直切分迁移">
-<meta property="og:url" content="http://www.xxelin.com/2020/04/15/database-performance-optimization/index.html">
+<meta property="og:url" content="https://www.xxelin.com/2020/04/15/database-performance-optimization/index.html">
 <meta property="og:site_name" content="奕林的技术博客">
 <meta property="og:description" content="背景原来的业务所有数据库都在一个实例上，配置为8C64G 1TB。由于业务快速增长，在业务高峰期时，数据库QPS大约12k+，频繁出现数据库CPU使用率达到100%的情况。 问题分析短期问题可以通过升级数据库配置解决，但是单机配置有上限，且约往后越不划算，单机的瓶颈会越来越明显，所以需要考虑对数据库进行拆分。 水平拆分OR垂直拆分一般情况下，考虑数据拆分时，分为水平拆分和垂直拆分两个方向。根据经验">
-<meta property="og:image" content="http://www.xxelin.com/images/image-20200313153740994.png">
-<meta property="og:image" content="http://www.xxelin.com/images/image-20200313171228499.png">
-<meta property="og:image" content="http://www.xxelin.com/images/image-20200415145129796.png">
+<meta property="og:image" content="https://www.xxelin.com/images/image-20200313153740994.png">
+<meta property="og:image" content="https://www.xxelin.com/images/image-20200313171228499.png">
+<meta property="og:image" content="https://www.xxelin.com/images/image-20200415145129796.png">
 <meta property="article:published_time" content="2020-04-15T02:17:40.000Z">
 <meta property="article:modified_time" content="2020-04-15T06:52:07.729Z">
 <meta property="article:author" content="Elin Zhou">
 <meta property="article:tag" content="Java">
 <meta property="article:tag" content="数据库">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="http://www.xxelin.com/images/image-20200313153740994.png">
+<meta name="twitter:image" content="https://www.xxelin.com/images/image-20200313153740994.png">
 
-<link rel="canonical" href="http://www.xxelin.com/2020/04/15/database-performance-optimization/">
+<link rel="canonical" href="https://www.xxelin.com/2020/04/15/database-performance-optimization/">
 
 
 <script id="page-configurations">
@@ -160,7 +160,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
-    <link itemprop="mainEntityOfPage" href="http://www.xxelin.com/2020/04/15/database-performance-optimization/">
+    <link itemprop="mainEntityOfPage" href="https://www.xxelin.com/2020/04/15/database-performance-optimization/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
