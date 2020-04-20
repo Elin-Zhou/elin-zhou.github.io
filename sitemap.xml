@@ -2,6 +2,13 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>https://www.xxelin.com/2020/04/15/spring-extend-interface/</loc>
+    
+    <lastmod>2020-04-20T08:15:22.707Z</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>https://www.xxelin.com/2020/04/15/java-skills/</loc>
     
     <lastmod>2020-04-20T07:28:44.411Z</lastmod>
@@ -40,13 +47,6 @@
     <loc>https://www.xxelin.com/2020/04/15/spring-utils/</loc>
     
     <lastmod>2020-04-15T03:45:46.457Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>https://www.xxelin.com/2020/04/15/spring-extend-interface/</loc>
-    
-    <lastmod>2020-04-15T03:43:45.242Z</lastmod>
     
   </url>
   
