@@ -2,16 +2,30 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
-    <loc>https://www.xxelin.com/2020/04/15/spring-extend-interface/</loc>
+    <loc>https://www.xxelin.com/2020/04/23/ProxyFactory-source/</loc>
     
-    <lastmod>2020-04-20T08:15:22.707Z</lastmod>
+    <lastmod>2020-04-24T03:58:02.277Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>https://www.xxelin.com/2020/04/15/spring-utils/</loc>
+    
+    <lastmod>2020-04-23T07:05:11.384Z</lastmod>
     
   </url>
   
   <url>
     <loc>https://www.xxelin.com/2020/04/15/java-skills/</loc>
     
-    <lastmod>2020-04-20T07:28:44.411Z</lastmod>
+    <lastmod>2020-04-23T07:03:01.054Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>https://www.xxelin.com/2020/04/15/spring-extend-interface/</loc>
+    
+    <lastmod>2020-04-20T08:15:22.707Z</lastmod>
     
   </url>
   
@@ -40,13 +54,6 @@
     <loc>https://www.xxelin.com/2020/04/15/bean-post-processor-practice/</loc>
     
     <lastmod>2020-04-15T05:57:25.970Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>https://www.xxelin.com/2020/04/15/spring-utils/</loc>
-    
-    <lastmod>2020-04-15T03:45:46.457Z</lastmod>
     
   </url>
   
