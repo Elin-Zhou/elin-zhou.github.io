@@ -154,6 +154,92 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="https://www.xxelin.com/2020/04/26/BeanFactory-get-bean/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Elin Zhou">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="奕林的技术博客">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/04/26/BeanFactory-get-bean/" class="post-title-link" itemprop="url">BeanFactory getBean源码分析</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2020-04-26 11:19:40" itemprop="dateCreated datePublished" datetime="2020-04-26T11:19:40+08:00">2020-04-26</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-04-27 14:38:05" itemprop="dateModified" datetime="2020-04-27T14:38:05+08:00">2020-04-27</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h2 id="初始BeanFactory"><a href="#初始BeanFactory" class="headerlink" title="初始BeanFactory"></a>初始BeanFactory</h2><p>在<code>Spring</code>中，如果我们需要从<code>IOC</code>容器中获取一个对象，在不考虑自动注入的场景，可以通过调用<code>BeanFactory#getBean(String)</code>方法。</p>
+<p>这个方法不但承担了从容器中取出已创建好的对象这一个职责，容器在启动的时候，依次初始化所有需要实例化的对象时，也调用了这个对象，所以我们可以判断这个方法应该有两个功能：</p>
+<ol>
+<li>如果容器中存在该对象，则直接返回</li>
+<li>如果容器中不存在该对象，则创建</li>
+</ol>
+<p>其中第一点的实现方式很容易猜到，应该是有一个<code>Map</code>对象，其中存储了<code>beanName</code>与<code>bean</code>的映射关系，在调用<code>getBean</code>方法时，从<code>Map</code>中查询，如果存在该对象，则直接返回。</p>
+<p>所以本文主要分析第二种情况，当<code>bean</code>不存在时，是如何进行初始化的。</p>
+<p>为了更加深入理解<code>bean</code>初始化的过程，本文还会解释如下几个问题，读者可以带着这几个问题进行阅读：</p>
+<ol>
+<li><a href="/2020/04/15/spring-extend-interface/">Spring支持的扩展接口</a>一文中提到的跟<code>bean</code>初始化相关的扩展接口是如何实现的？</li>
+<li>如果两个<code>bean</code> 循环引用的情况如何处理？</li>
+<li>如果两个<code>bean</code>互相依赖(depend-on)如何处理？</li>
+<li><code>Singleton</code>和<code>Prototype</code>在实现上的差别是什么？</li>
+</ol>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2020/04/26/BeanFactory-get-bean/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
     <link itemprop="mainEntityOfPage" href="https://www.xxelin.com/2020/04/23/ProxyFactory-source/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -425,7 +511,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2020-04-20 16:15:22" itemprop="dateModified" datetime="2020-04-20T16:15:22+08:00">2020-04-20</time>
+                <time title="修改时间：2020-04-27 10:23:32" itemprop="dateModified" datetime="2020-04-27T10:23:32+08:00">2020-04-27</time>
               </span>
 
           
@@ -446,75 +532,6 @@
           <!--noindex-->
             <div class="post-button">
               <a class="btn" href="/2020/04/15/spring-extend-interface/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
-    <link itemprop="mainEntityOfPage" href="https://www.xxelin.com/2020/04/15/bean-post-processor-practice/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Elin Zhou">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="奕林的技术博客">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/04/15/bean-post-processor-practice/" class="post-title-link" itemprop="url">BeanPostProcessor实践之生成动态实现类</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-              
-
-              <time title="创建时间：2020-04-15 10:18:40 / 修改时间：13:57:25" itemprop="dateCreated datePublished" datetime="2020-04-15T10:18:40+08:00">2020-04-15</time>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>本文将描述如何通过<code>BeanPostProcessor</code>以及与其相关的技术来生成接口的实现类并自动注入bean中。实现的效果类似于<code>Mybatis</code>的<code>mapper</code>仅需要定义接口，而无需手动生成实现类。</p>
-<p>阅读本文之前，请先了解学习<code>BeanPostProcessor</code>、<code>InstantiationAwareBeanPostProcessor</code>以及<code>BeanDefinitionRegistryPostProcessor</code>，可以参考此文<a href="/2020/04/15/spring-extend-interface/">Spring支持的扩展接口</a>；同时需要了解<code>FactoryBean</code>与<code>ClassPathBeanDefinitionScanner</code>的概念，参考<a href="/2020/04/15/spring-utils/">Spring常用工具</a></p>
-<p>为了结合实际需求，请读者设想如下场景：在对接某第三方公司时，对方提供了Http接口以供调用，如果使用常规方式，需要在代码中拼接url，然后使用诸如<code>HttpClient</code>一类的工具获取结果响应。如果这样的代码散落在项目当中，将会非常影响观感，有些同学会做一些封装，为每个http接口封装一个工具方法以供调用，但是需要写很多接口及其实现类，其代码大同小异，本文就将对此场景进行封装，最终实现仅需要开发同学创建对应的接口（<code>Interface</code>），无需写实现类，在调用端直接用<code>@Autowire</code>注入即可调用。</p>
-<p>本文主要是以学习为目的而并非解决实际问题，上述的场景也只是工作中很简单的一个场景，所以本文将使用两种方式来实现该需求，以记录更多有用的知识点。</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2020/04/15/bean-post-processor-practice/#more" rel="contents">
                 阅读全文 &raquo;
               </a>
             </div>
@@ -603,7 +620,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">7</span>
+          <span class="site-state-item-count">8</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
