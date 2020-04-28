@@ -2,6 +2,13 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>https://www.xxelin.com/2020/04/15/java-skills/</loc>
+    
+    <lastmod>2020-04-28T06:53:17.545Z</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>https://www.xxelin.com/2020/04/26/BeanFactory-get-bean/</loc>
     
     <lastmod>2020-04-27T06:38:05.927Z</lastmod>
@@ -33,13 +40,6 @@
     <loc>https://www.xxelin.com/2020/04/15/spring-utils/</loc>
     
     <lastmod>2020-04-23T07:05:11.384Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>https://www.xxelin.com/2020/04/15/java-skills/</loc>
-    
-    <lastmod>2020-04-23T07:03:01.054Z</lastmod>
     
   </url>
   
