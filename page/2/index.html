@@ -223,6 +223,74 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="https://www.xxelin.com/2020/04/15/database-performance-optimization/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Elin Zhou">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="奕林的技术博客">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/04/15/database-performance-optimization/" class="post-title-link" itemprop="url">数据库垂直切分迁移</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2020-04-15 10:17:40 / 修改时间：14:52:07" itemprop="dateCreated datePublished" datetime="2020-04-15T10:17:40+08:00">2020-04-15</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><p>原来的业务所有数据库都在一个实例上，配置为8C64G 1TB。由于业务快速增长，在业务高峰期时，数据库QPS大约12k+，频繁出现数据库CPU使用率达到100%的情况。</p>
+<h2 id="问题分析"><a href="#问题分析" class="headerlink" title="问题分析"></a>问题分析</h2><p>短期问题可以通过升级数据库配置解决，但是单机配置有上限，且约往后越不划算，单机的瓶颈会越来越明显，所以需要考虑对数据库进行拆分。</p>
+<h3 id="水平拆分OR垂直拆分"><a href="#水平拆分OR垂直拆分" class="headerlink" title="水平拆分OR垂直拆分"></a>水平拆分OR垂直拆分</h3><p>一般情况下，考虑数据拆分时，分为水平拆分和垂直拆分两个方向。根据经验，水平拆分适合数据量非常大的单表，而垂直拆分适合多个数据表按业务情况拆分到不同的数据库实例中，所以此处选择垂直拆分。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2020/04/15/database-performance-optimization/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
     <link itemprop="mainEntityOfPage" href="https://www.xxelin.com/2020/04/15/java-skills/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -254,7 +322,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2020-04-28 14:53:17" itemprop="dateModified" datetime="2020-04-28T14:53:17+08:00">2020-04-28</time>
+                <time title="修改时间：2020-04-28 14:54:56" itemprop="dateModified" datetime="2020-04-28T14:54:56+08:00">2020-04-28</time>
               </span>
 
           
@@ -569,7 +637,7 @@
 <h5 id="槽迁移过程"><a href="#槽迁移过程" class="headerlink" title="槽迁移过程"></a>槽迁移过程</h5><p>例如A节点的X槽迁移到B节点</p>
 <ol>
 <li>向节点 A 发送命令 CLUSTER SETSLOT X <strong><code>MIGRATING</code></strong> B，此时A节点X槽状态设置为<strong><code>MIGRATING</code></strong></li>
-<li>向节点 B 发送命令 CLUSTER SETSLOT 8 <strong><code>IMPORTING</code></strong> A，此时B节点X槽状态设置为<strong><code>IMPORTING</code></strong></li>
+<li>向节点 B 发送命令 CLUSTER SETSLOT X <strong><code>IMPORTING</code></strong> A，此时B节点X槽状态设置为<strong><code>IMPORTING</code></strong></li>
 <li>A节点中所有key开始迁移至B节点，迁移过程是<code>原子性的</code>，也就是一个key要么还在A节点中，要么已经迁移至B节点中，不会同时存在</li>
 <li>此时有客户端请求属于X槽的key，如果是已存在的key，则由A处理；否则返回<code>ASK</code>指令，客户端将使用<code>ASKING</code>指令重新请求B节点；这能保证A节点中key数量只减不增，B节点key只增不减</li>
 <li>当所有key都迁移完成，A、B节点清除迁移状态，B节点发送<code>UPDATE</code>指令给所有节点，通知其更新槽对应的节点信息，后续的X槽指令将全部被重定向（<code>MOVED</code>指令）到B节点</li>
@@ -793,74 +861,6 @@
 <li><a href="https://github.com/xingshaocheng/architect-awesome" target="_blank" rel="noopener">https://github.com/xingshaocheng/architect-awesome</a></li>
 </ul>
 
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
-    <link itemprop="mainEntityOfPage" href="https://www.xxelin.com/2020/04/15/database-performance-optimization/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Elin Zhou">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="奕林的技术博客">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/04/15/database-performance-optimization/" class="post-title-link" itemprop="url">数据库垂直切分迁移</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-              
-
-              <time title="创建时间：2020-04-15 10:17:40 / 修改时间：14:52:07" itemprop="dateCreated datePublished" datetime="2020-04-15T10:17:40+08:00">2020-04-15</time>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><p>原来的业务所有数据库都在一个实例上，配置为8C64G 1TB。由于业务快速增长，在业务高峰期时，数据库QPS大约12k+，频繁出现数据库CPU使用率达到100%的情况。</p>
-<h2 id="问题分析"><a href="#问题分析" class="headerlink" title="问题分析"></a>问题分析</h2><p>短期问题可以通过升级数据库配置解决，但是单机配置有上限，且约往后越不划算，单机的瓶颈会越来越明显，所以需要考虑对数据库进行拆分。</p>
-<h3 id="水平拆分OR垂直拆分"><a href="#水平拆分OR垂直拆分" class="headerlink" title="水平拆分OR垂直拆分"></a>水平拆分OR垂直拆分</h3><p>一般情况下，考虑数据拆分时，分为水平拆分和垂直拆分两个方向。根据经验，水平拆分适合数据量非常大的单表，而垂直拆分适合多个数据表按业务情况拆分到不同的数据库实例中，所以此处选择垂直拆分。</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2020/04/15/database-performance-optimization/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
       
     </div>
 
