@@ -322,7 +322,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2020-04-28 14:54:56" itemprop="dateModified" datetime="2020-04-28T14:54:56+08:00">2020-04-28</time>
+                <time title="修改时间：2020-04-29 14:55:58" itemprop="dateModified" datetime="2020-04-29T14:55:58+08:00">2020-04-29</time>
               </span>
 
           
@@ -692,7 +692,7 @@
 </tbody></table>
 <h3 id="MySQL"><a href="#MySQL" class="headerlink" title="MySQL"></a>MySQL</h3><p><a href="https://draveness.me/mysql-innodb" target="_blank" rel="noopener">https://draveness.me/mysql-innodb</a></p>
 <p>MySQL索引背后的数据结构及算法原理（包含B树和B+树原理）<a href="http://blog.codinglabs.org/articles/theory-of-mysql-index.html" target="_blank" rel="noopener">http://blog.codinglabs.org/articles/theory-of-mysql-index.html</a></p>
-<h4 id="锁-1"><a href="#锁-1" class="headerlink" title="锁"></a>锁</h4><h5 id="加锁分析"><a href="#加锁分析" class="headerlink" title="加锁分析"></a>加锁分析</h5><p>[<strong>MySQL 加锁处理分析</strong>](<a href="https://github.com/hedengcheng/tech/blob/master/database/MySQL/MySQL%20%E5%8A%A0%E9%94%81%E5%A4%84%E7%90%86%E5%88%86%E6%9E%90.pdf]" target="_blank" rel="noopener">https://github.com/hedengcheng/tech/blob/master/database/MySQL/MySQL%20%E5%8A%A0%E9%94%81%E5%A4%84%E7%90%86%E5%88%86%E6%9E%90.pdf]</a>(<a href="https://github.com/hedengcheng/tech/blob/master/database/MySQL/MySQL" target="_blank" rel="noopener">https://github.com/hedengcheng/tech/blob/master/database/MySQL/MySQL</a> 加锁处理分析.pdf)</p>
+<h4 id="锁-1"><a href="#锁-1" class="headerlink" title="锁"></a>锁</h4><p><a href="https://github.com/hedengcheng/tech/blob/master/database/MySQL/MySQL%20加锁处理分析.pdf" target="_blank" rel="noopener">MySQL加锁分析</a></p>
 <h5 id="锁的种类"><a href="#锁的种类" class="headerlink" title="锁的种类"></a>锁的种类</h5><ul>
 <li><p>互斥锁、共享锁、意向互斥锁、意象共享锁</p>
 </li>
@@ -740,12 +740,12 @@
 <p>使用索引A（非主键）进行更新时，如果恰巧有其他sql通过主键更新A字段时，将有可能死锁。因为通过非主键更新时，会先将A（辅助索引）上锁，再找到其主键上锁；通过主键更新时，会先对主键上锁，如果发现需要更新的字段为辅助索引（如A索引）时，再将辅助索引上锁，此时就会导致死锁。</p>
 </blockquote>
 <h4 id="单表理想性能计算"><a href="#单表理想性能计算" class="headerlink" title="单表理想性能计算"></a>单表理想性能计算</h4><ul>
-<li>希望btree的高度h&lt;=3，即最多通过三次IO可以查询所有数据</li>
+<li>希望btree的高度h&lt;=3，即最多通过两次IO可以查询所有数据（根节点常驻内存）</li>
 <li>InnoDB中主键默认为64位即8b，索引为6b，合计一条记录需要14b，MySQL中一个节点占用一页，一页大小为16k，所以每个节点最多16kb/14b=1170条记录</li>
 <li>h=3时，索引占用前两层，所以一共1170*1170条内页索引（不包含叶子节点的节点数）</li>
-<li>假设每条记录为1k，所以叶子节点中每一个节点约为16条记录，合计1170<em>1170</em>16约等于两千万，此时单表占用空间约为1170<em>1170</em>16/1024/1024≈20G</li>
+<li>假设每条记录为1k，所以叶子节点中每一个节点约为16条记录，合计1170*1170*16约等于两千万，此时单表占用空间约为1170<em>1170</em>16/1024/1024≈20G</li>
 <li>坊间传的MySQL数据量达到两千万后性能下降的原因大致是这样的，但是是按每条记录1k计算的，所以仅供参考，如果单行记录远小于这个值的，不会受两千万数量的影响</li>
-<li>例如辅助索引，叶子节点存储的数据域是主键（InnoDB），所以每一行占用的空间为16b（key 8b，主键8b），那么每个叶子节点最多容纳16k/16b=1000个节点，此时整棵树最多可容纳1170<em>1170</em>1000约等于13亿行</li>
+<li>例如辅助索引，叶子节点存储的数据域是主键（InnoDB），所以每一行占用的空间为16b（key 8b，主键8b），那么每个叶子节点最多容纳16k/16b=1000个节点，此时整棵树最多可容纳1170*1170*1000约等于13亿行</li>
 <li>所以可以认为，当表数据量小于20G且行数不大于13亿时，一般不会出现太大性能瓶颈</li>
 </ul>
 <h4 id="索引（InnoDB）"><a href="#索引（InnoDB）" class="headerlink" title="索引（InnoDB）"></a>索引（InnoDB）</h4><ul>
@@ -758,21 +758,38 @@
 <p>例如有a,b两个字段，建立 <code>(a,b)</code> 联合索引，执行 <code>select * where a &gt; 0 and b &gt;0</code></p>
 <p>正常情况下，只能用到a字段的索引，因为B+树中只能通过前缀匹配范围查询。通过筛选<code>a&gt;0</code>条件后，进行回表操作，再筛选出 <code>b&gt;0</code>的记录</p>
 <p>可以发现，这种方式回表的数据较多，其实可以做一次优化，在筛选完<code>a&gt;0</code>后，再进行一次<code>b&gt;0</code>筛选，这样回表的数据就少多了，这种优化方式成为<code>索引下推</code>，MySQL中默认开启。</p>
+<h5 id="索引优化策略"><a href="#索引优化策略" class="headerlink" title="索引优化策略"></a>索引优化策略</h5><ol>
+<li>最左前缀匹配</li>
+<li>不要使用函数</li>
+<li>用区分度大的字段作为索引</li>
+<li>减少<code>回表</code>操作，请求量大的<code>SQL</code>可以考虑进行<code>索引覆盖</code></li>
+<li>尽量减少使用排序，如果要使用，尽量保证走索引；如果不走索引尽量保证在内存中排序；尽量使用<code>LIMIT</code>，因为<code>LIMIT</code>能尽可能保证进行内存排序而不是<code>文件排序</code>，参见<a href="#LIMIT优化">LIMIT优化</a></li>
+</ol>
+<h4 id="排序"><a href="#排序" class="headerlink" title="排序"></a>排序</h4><p><a href="https://www.cnblogs.com/cchust/p/5304594.html" target="_blank" rel="noopener">MySQL排序原理与案例分析</a></p>
+<p>计划任务中出现<code>Using filesort</code>表示需要额外排序，但不一定是文件排序，也有可能是内存排序</p>
+<h5 id="排序过程"><a href="#排序过程" class="headerlink" title="排序过程"></a>排序过程</h5><ol>
+<li>查询出满足<code>where</code>条件的记录</li>
+<li>对于每条记录，将主键+排序key取出，放如<code>sort buffer</code>，例如(id+key)</li>
+<li>如果<code>sort buffer</code>能存放下所有的记录，则在内存中使用<code>快速排序</code>；如果放不下，就需要放入文件中，使用<code>归并排序</code></li>
+<li>排序完后，如果需要<code>limit</code>则进行过滤；如果需要<a href="#回表">回表</a>，则执行回表</li>
+<li>将数据返回给客户端</li>
+</ol>
+<h5 id="LIMIT优化"><a href="#LIMIT优化" class="headerlink" title="LIMIT优化"></a>LIMIT优化</h5><p>例如<code>Order by limit M,N</code>，虽然所有元素都要参与排序，但是在<code>sort buffer</code>中只需要能放下N+M个元素即可在内存中使用<code>堆排序</code>，而不需要进行文件排序，减少IO提高性能。</p>
 <h4 id="事务特性-ACID"><a href="#事务特性-ACID" class="headerlink" title="事务特性 ACID"></a>事务特性 ACID</h4><ul>
 <li>原子性：事务是一个不可再分割的工作单元</li>
 <li>一致性：事务不能破坏关系数据的完整性以及业务逻辑上的一致性</li>
 <li>隔离性：事务之间是隔离的，一个事务不应该影响其它事务运行效果</li>
 <li>持久性：事务完成以后，该事务所对数据库所作的更改便持久的保存在数据库之中，并不会被回滚</li>
 </ul>
-<h4 id="事务隔离级别"><a href="#事务隔离级别" class="headerlink" title="事务隔离级别"></a>事务隔离级别</h4><p><strong>此处注意甄别MySQL规范与InnoDB具体实现之间的差异，此处指InnoDB的具体实现</strong></p>
+<h4 id="事务隔离级别"><a href="#事务隔离级别" class="headerlink" title="事务隔离级别"></a>事务隔离级别</h4><p><strong>此处注意甄别数据库规范与InnoDB具体实现之间的差异，此处指InnoDB的具体实现</strong></p>
 <ul>
 <li>未提交读(READ UNCOMMIT)：存在脏读问题</li>
 <li>提交读(READ COMMIT)：解决脏读问题，存在不可重复读和幻读问题</li>
 <li>重复读(REPEATABLE READ)：解决不可重复读问题和幻读，通过MVCC解决不可重复读，通过gap lock解决幻读</li>
 <li>串行(SERIALIZABLE)：从MVCC退化到基于锁的并发控制</li>
 </ul>
-<h4 id="不可重复读和幻读"><a href="#不可重复读和幻读" class="headerlink" title="不可重复读和幻读"></a>不可重复读和幻读</h4><p>不可重复读是指在一个事务中，已加锁的记录第二次读取时与之前的内容不同，但数量不变，即可能被update</p>
-<p>幻读是指在一个事务中，已加锁的数据第二次读取时结果集数量不同，即可能被insert或update。官方链接：<a href="https://dev.mysql.com/doc/refman/8.0/en/innodb-next-key-locking.html" target="_blank" rel="noopener">https://dev.mysql.com/doc/refman/8.0/en/innodb-next-key-locking.html</a></p>
+<h4 id="不可重复读和幻读"><a href="#不可重复读和幻读" class="headerlink" title="不可重复读和幻读"></a>不可重复读和幻读</h4><p>不可重复读是指在一个事务中，已加锁的记录第二次读取时与之前的内容不同，但数量不变，即可能被<code>update</code></p>
+<p>幻读是指在一个事务中，已加锁的数据第二次读取时结果集数量不同，即可能被<code>insert</code>或<code>delete</code>。官方链接：<a href="https://dev.mysql.com/doc/refman/8.0/en/innodb-next-key-locking.html" target="_blank" rel="noopener">https://dev.mysql.com/doc/refman/8.0/en/innodb-next-key-locking.html</a></p>
 <p><a href="https://www.cnblogs.com/itcomputer/articles/5133254.html" target="_blank" rel="noopener">https://www.cnblogs.com/itcomputer/articles/5133254.html</a></p>
 <h4 id="MVCC"><a href="#MVCC" class="headerlink" title="MVCC"></a>MVCC</h4><p><a href="https://chenjiayang.me/2019/06/22/mysql-innodb-mvcc/" target="_blank" rel="noopener">https://chenjiayang.me/2019/06/22/mysql-innodb-mvcc/</a></p>
 <p><a href="https://www.cnblogs.com/naci/p/3753644.html?utm_source=tuicool&amp;utm_medium=referra" target="_blank" rel="noopener">https://www.cnblogs.com/naci/p/3753644.html?utm_source=tuicool&amp;utm_medium=referra</a></p>
@@ -806,7 +823,80 @@
 <li>模板方法</li>
 <li>工厂</li>
 </ul>
-<h2 id="网络"><a href="#网络" class="headerlink" title="网络"></a>网络</h2><h3 id="三次握手四次挥手"><a href="#三次握手四次挥手" class="headerlink" title="三次握手四次挥手"></a>三次握手四次挥手</h3><p><a href="https://zhuanlan.zhihu.com/p/86426969" target="_blank" rel="noopener">https://zhuanlan.zhihu.com/p/86426969</a></p>
+<h2 id="网络"><a href="#网络" class="headerlink" title="网络"></a>网络</h2><h3 id="连接与断开"><a href="#连接与断开" class="headerlink" title="连接与断开"></a>连接与断开</h3><p><a href="https://zhuanlan.zhihu.com/p/86426969" target="_blank" rel="noopener">https://zhuanlan.zhihu.com/p/86426969</a></p>
+<h4 id="三次握手"><a href="#三次握手" class="headerlink" title="三次握手"></a>三次握手</h4><p>三次握手是指服务器与客户端建立一个TCP链接一共需要通讯三次，目的是为了互相确认彼此的接受和发送能力均正常。</p>
+<table>
+<thead>
+<tr>
+<th>次序</th>
+<th>发包方向</th>
+<th>发送信息</th>
+<th>能力确认</th>
+<th>是否可携带数据</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>第一次</td>
+<td>客户端-&gt;服务端</td>
+<td>SYN=1,seq=x</td>
+<td>客户端发送能力正常</td>
+<td>否</td>
+</tr>
+<tr>
+<td>第二次</td>
+<td>服务端-&gt;客户端</td>
+<td>SYN=1,ACK=x+1,seq=y</td>
+<td>服务端发送能力、接受能力正常</td>
+<td>否</td>
+</tr>
+<tr>
+<td>第三次</td>
+<td>客户端-&gt;服务端</td>
+<td>ACK=1,ack=y+1,seq=x+1</td>
+<td>客户端接受能力正常</td>
+<td>是</td>
+</tr>
+</tbody></table>
+<h5 id="半连接队列和全连接队列"><a href="#半连接队列和全连接队列" class="headerlink" title="半连接队列和全连接队列"></a>半连接队列和全连接队列</h5><p>服务器端在收到客户端发来的第一次<code>SYN</code>报文后，会处于<code>SYN_RCVD</code>状态，服务器会将这种状态的连接放入队列中，称为<code>半连接队列</code>。在这个队列中的连接如果等待一段世界没有收到客户端的确认包，将会进行重传直到达到最大重传次数，然后会被从<code>半连接队列</code>中移除。</p>
+<p>针对这种机制，有可能受到<code>SYN攻击</code>，即客户端发起大量<code>SYN</code>请求，导致<code>半连接队列</code>被占满并且不断进行重试，最终导致网络瘫痪。</p>
+<p>完成<code>三次握手</code>的连接，将会放入<code>全连接队列</code>中。</p>
+<h4 id="四次挥手"><a href="#四次挥手" class="headerlink" title="四次挥手"></a>四次挥手</h4><p>断开连接需要四次通讯，因为断开连接需要连接双方各主动发起一次结束报文，证明发起方不再向对方发送数据了，并且每一次发起对方均需要响应，所以一共有四次通讯。</p>
+<table>
+<thead>
+<tr>
+<th>次序</th>
+<th>发包方向</th>
+<th>发送信息</th>
+<th>当前状态</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>第一次</td>
+<td>客户端-&gt;服务端</td>
+<td>FIN=1,seq=i</td>
+<td>客户端停止发送数据</td>
+</tr>
+<tr>
+<td>第二次</td>
+<td>服务端-&gt;客户端</td>
+<td>ACK=1,ack=i+1,seq=j</td>
+<td>服务端停止接受数据</td>
+</tr>
+<tr>
+<td>第三次</td>
+<td>服务端-&gt;客户端</td>
+<td>FIN=1,ACK=1,ack=i+1,seq=k</td>
+<td>服务端停止发送数据</td>
+</tr>
+<tr>
+<td>第四次</td>
+<td>客户端-&gt;服务端</td>
+<td>ACK=1,ack=k+1,seq=i+1</td>
+<td>客户端等待2MSL后关闭并进入CLOSE<br />服务端接受后直接进入CLOSE</td>
+</tr>
+</tbody></table>
+<h5 id="第四次接受到响应报文后为何需要等待2MSL才能进入CLOSED"><a href="#第四次接受到响应报文后为何需要等待2MSL才能进入CLOSED" class="headerlink" title="第四次接受到响应报文后为何需要等待2MSL才能进入CLOSED"></a>第四次接受到响应报文后为何需要等待2MSL才能进入CLOSED</h5><p><code>MSL</code>（Maximum Segment Lifetime）表示一个报文在网络传输时最大生命周期，如果超过这个时间，就算被接受到，报文也会被丢弃。</p>
+<p>第四次挥手时，客户端的<code>ACK</code>报文在传输中可能会丢失，服务器会要求客户端进行重传，如果客户端立即进入<code>CLOSED</code>，将没有能力响应，从而导致服务端无法正常<code>CLOSED</code>。等待2MSL表示服务端已经无需客户端进行重传了，则可以关闭。</p>
 <h2 id="数据结构-1"><a href="#数据结构-1" class="headerlink" title="数据结构"></a>数据结构</h2><ul>
 <li>二叉搜索树</li>
 <li>平衡树</li>
@@ -839,6 +929,8 @@
 </li>
 </ul>
 <h3 id="分布式事务"><a href="#分布式事务" class="headerlink" title="分布式事务"></a>分布式事务</h3><p><a href="https://mp.weixin.qq.com/s/gg4q_53eiHCI3OUWzN7eWg" target="_blank" rel="noopener">https://mp.weixin.qq.com/s/gg4q_53eiHCI3OUWzN7eWg</a></p>
+<h4 id="XA"><a href="#XA" class="headerlink" title="XA"></a>XA</h4><h4 id="TCC"><a href="#TCC" class="headerlink" title="TCC"></a>TCC</h4><h4 id="Seata"><a href="#Seata" class="headerlink" title="Seata"></a>Seata</h4><p><a href="https://github.com/seata/seata" target="_blank" rel="noopener">https://github.com/seata/seata</a></p>
+<h4 id="ByteTCC"><a href="#ByteTCC" class="headerlink" title="ByteTCC"></a>ByteTCC</h4><p><a href="https://github.com/liuyangming/ByteTCC" target="_blank" rel="noopener">https://github.com/liuyangming/ByteTCC</a></p>
 <h3 id="Java字节码增强探秘"><a href="#Java字节码增强探秘" class="headerlink" title="Java字节码增强探秘"></a>Java字节码增强探秘</h3><p> <a href="https://www.infoq.cn/article/kzmlUsizYFlw7F9t5jPO" target="_blank" rel="noopener">https://www.infoq.cn/article/kzmlUsizYFlw7F9t5jPO</a></p>
 <h3 id="零拷贝"><a href="#零拷贝" class="headerlink" title="零拷贝"></a>零拷贝</h3><p><a href="https://www.jianshu.com/p/2581342317ce" target="_blank" rel="noopener">https://www.jianshu.com/p/2581342317ce</a></p>
 <p>一般一次读文件写文件（网络流）操作的伪代码如下</p>
