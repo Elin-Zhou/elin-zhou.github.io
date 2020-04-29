@@ -223,74 +223,6 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
-    <link itemprop="mainEntityOfPage" href="https://www.xxelin.com/2020/04/15/database-performance-optimization/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Elin Zhou">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="奕林的技术博客">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/04/15/database-performance-optimization/" class="post-title-link" itemprop="url">数据库垂直切分迁移</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-              
-
-              <time title="创建时间：2020-04-15 10:17:40 / 修改时间：14:52:07" itemprop="dateCreated datePublished" datetime="2020-04-15T10:17:40+08:00">2020-04-15</time>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><p>原来的业务所有数据库都在一个实例上，配置为8C64G 1TB。由于业务快速增长，在业务高峰期时，数据库QPS大约12k+，频繁出现数据库CPU使用率达到100%的情况。</p>
-<h2 id="问题分析"><a href="#问题分析" class="headerlink" title="问题分析"></a>问题分析</h2><p>短期问题可以通过升级数据库配置解决，但是单机配置有上限，且约往后越不划算，单机的瓶颈会越来越明显，所以需要考虑对数据库进行拆分。</p>
-<h3 id="水平拆分OR垂直拆分"><a href="#水平拆分OR垂直拆分" class="headerlink" title="水平拆分OR垂直拆分"></a>水平拆分OR垂直拆分</h3><p>一般情况下，考虑数据拆分时，分为水平拆分和垂直拆分两个方向。根据经验，水平拆分适合数据量非常大的单表，而垂直拆分适合多个数据表按业务情况拆分到不同的数据库实例中，所以此处选择垂直拆分。</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2020/04/15/database-performance-optimization/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
     <link itemprop="mainEntityOfPage" href="https://www.xxelin.com/2020/04/15/java-skills/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -322,7 +254,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2020-04-29 14:55:58" itemprop="dateModified" datetime="2020-04-29T14:55:58+08:00">2020-04-29</time>
+                <time title="修改时间：2020-04-29 16:49:48" itemprop="dateModified" datetime="2020-04-29T16:49:48+08:00">2020-04-29</time>
               </span>
 
           
@@ -910,6 +842,41 @@
 <p>可以发现1000ms和513000ms后执行的任务放在了同一个队列中，但是轮次不同，第一次执行当10号格子时，100ms任务轮次为0，正常执行；513000ms任务轮次自减成0，下一次轮到的时候就可以执行了。</p>
 <h5 id="如果上一个格子占用了过多时间怎么办"><a href="#如果上一个格子占用了过多时间怎么办" class="headerlink" title="如果上一个格子占用了过多时间怎么办"></a>如果上一个格子占用了过多时间怎么办</h5><p>正常情况下，每个格子只有100ms的执行窗口期，但是在执行过程中不会判断是否执行超时，只有全部执行完，走到下一个格子时，会判断是否超过当前格子的deadline。如果超过了，当前格子不会执行，也不会自减轮次，所以其中的所有任务将延迟512*100ms执行。</p>
 <h5 id="工作线程为单线程"><a href="#工作线程为单线程" class="headerlink" title="工作线程为单线程"></a>工作线程为单线程</h5><p>执行所有任务的线程是单线程的，如果每个格子中的任务执行时间之和超过100ms，后续的所有任务将会受到影响，所以尽量不要提交执行时间很长的任务到HashedWheelTimer中。</p>
+<h2 id="架构"><a href="#架构" class="headerlink" title="架构"></a>架构</h2><h3 id="分布式系统设计原则：CAP原则"><a href="#分布式系统设计原则：CAP原则" class="headerlink" title="分布式系统设计原则：CAP原则"></a>分布式系统设计原则：CAP原则</h3><ul>
+<li><a href="https://www.cnblogs.com/szlbm/p/5588543.html" target="_blank" rel="noopener">https://www.cnblogs.com/szlbm/p/5588543.html</a><ul>
+<li>C:一致性，A:可用性，P:分区容错性</li>
+<li>分布式系统必须实现分区容错性，所以P必须实现</li>
+<li>CA不能同时满足：因为网络是不可靠的，要实现分区之间数据一致，必须依赖与网络。如果需要强一致性，网络故障时会导致不可用(without A)，如果需要保证可用性，则网络故障时只能用旧值(without C)</li>
+</ul>
+</li>
+</ul>
+<h3 id="分布式事务"><a href="#分布式事务" class="headerlink" title="分布式事务"></a>分布式事务</h3><p><a href="https://mp.weixin.qq.com/s/gg4q_53eiHCI3OUWzN7eWg" target="_blank" rel="noopener">https://mp.weixin.qq.com/s/gg4q_53eiHCI3OUWzN7eWg</a></p>
+<h4 id="XA"><a href="#XA" class="headerlink" title="XA"></a>XA</h4><p>2PC(two phase commit)的一种实现，分别需要执行预提交(precommit)和提交(commit)两个阶段，需要底层数据库支持。</p>
+<p>缺点：</p>
+<ol>
+<li>需要事务管理器进行协调，如果事务管理器故障会导致资源阻塞</li>
+<li>最终提交前，资源一直被阻塞，性能差</li>
+<li>网络问题导致多个服务没有同时提交或同时回滚，导致数据不一致</li>
+</ol>
+<h4 id="TCC"><a href="#TCC" class="headerlink" title="TCC"></a>TCC</h4><p><a href="https://www.bytesoft.org/" target="_blank" rel="noopener">https://www.bytesoft.org/</a></p>
+<p><code>TCC</code>分为三个操作，分别是<code>try</code>、<code>confirm</code>、<code>cancel</code>，其中每一个操作都是完整的本地事务。</p>
+<h5 id="try"><a href="#try" class="headerlink" title="try"></a>try</h5><p>尝试执行业务检查和准备操作，例如转账前检查余额，并将余额进行冻结。</p>
+<h5 id="confirm"><a href="#confirm" class="headerlink" title="confirm"></a>confirm</h5><p>如果所有从属业务<code>try</code>操作均成功执行，则依次执行<code>confirm</code>。<code>confirm</code>不允许业务异常，例如冻结金额不足等业务问题。如果执行失败，则将不断重试，所以需要保证幂等。例如将<code>try</code>操作冻结的余额进行扣除。</p>
+<h5 id="cancel"><a href="#cancel" class="headerlink" title="cancel"></a>cancel</h5><p>如果有任何一个从属业务<code>try</code>失败，则执行所有<code>try</code>成功业务对应的<code>cancel</code>操作。如果执行失败，将不断重试，需要保证幂等。例如将<code>try</code>操作冻结的金额释放。</p>
+<h4 id="本地消息表"><a href="#本地消息表" class="headerlink" title="本地消息表"></a>本地消息表</h4><p>有些情况下，不需要保证数据的强一致性，只需要保证数据的<code>最终一致性</code>，即允许数据在某个阶段不一致，但最终一定是一致的。</p>
+<p>通过本地消息表+本地事务实现</p>
+<p><img src="/images/640" alt="img"></p>
+<p>例如：扣除余额业务需要修改用户余额的同时，记录一条流水记录，这两个操作均由两个子系统实现，无法使用本地事务。</p>
+<p>可以增加一张本地消息表，每次扣除余额时，在本地消息表中记录流水，并设置状态为未处理；在记录流水记录的事务中进行余额扣除，如果扣除成功则提交本地事务；如果不成功则回滚本地事务。</p>
+<p>如果本地事务提交成功成功，说明本地流水和余额扣除操作均成功，可以同步/异步通知流水系统记录流水，记录流水业务需要保证幂等，在一次通知不成功的情绪，将需要不断重试。</p>
+<p>当流水系统成功记录流水后，通知主业务系统，主业务系统修改本地消息表中对应流水的状态为已完成，后续不再继续重试。</p>
+<h4 id="saga事务"><a href="#saga事务" class="headerlink" title="saga事务"></a>saga事务</h4><p>将主业务拆分成若干子业务操作为：T1, T2, T3, …, Tn</p>
+<p>定义所有子业务操作的反操作：C1, C2, C3, …, Cn</p>
+<p>业务按次序执行，如果全部正常执行完成，则主业务执行完成；如果执行到某个业务失败，则按次序执行反操作。</p>
+<p>例如T1, T2, …, Tj均执行成功，Tj+1执行失败，则依次执行Cj,…, C2, C1进行业务撤销</p>
+<p>这种方案跟<code>TCC</code>比较没有<code>try</code>&amp;<code>confirm</code>的过程，例如增加余额操作没有先冻结余额再解冻金额，而是一步直接增加，会导致需要执行反操作（扣除余额）的时候，发现余额不足了，就无法正常执行反操作了。这就是事务之间没有隔离性的问题</p>
+<h4 id="Seata"><a href="#Seata" class="headerlink" title="Seata"></a>Seata</h4><p><a href="https://github.com/seata/seata" target="_blank" rel="noopener">https://github.com/seata/seata</a></p>
+<h4 id="ByteTCC"><a href="#ByteTCC" class="headerlink" title="ByteTCC"></a>ByteTCC</h4><p><a href="https://github.com/liuyangming/ByteTCC" target="_blank" rel="noopener">https://github.com/liuyangming/ByteTCC</a></p>
 <h2 id="其他"><a href="#其他" class="headerlink" title="其他"></a>其他</h2><h3 id="引用"><a href="#引用" class="headerlink" title="引用"></a>引用</h3><ul>
 <li>强引用</li>
 <li>弱引用：内存溢出之前进行回收，用来作为缓存</li>
@@ -920,17 +887,6 @@
 <p>CPU load是在一段时间内CPU正在处理以及等待CPU处理的进程数之和</p>
 <p>CPU使用率是指进程对cpu占用的时间比例</p>
 <p>例如只有一个进程使用一颗单核CPU，IO等待了15ms，CPU计算了45ms，那么此时的CPU load是1，CPU 使用率是75%</p>
-<h3 id="分布式系统设计原则：CAP原则"><a href="#分布式系统设计原则：CAP原则" class="headerlink" title="分布式系统设计原则：CAP原则"></a>分布式系统设计原则：CAP原则</h3><ul>
-<li><a href="https://www.cnblogs.com/szlbm/p/5588543.html" target="_blank" rel="noopener">https://www.cnblogs.com/szlbm/p/5588543.html</a><ul>
-<li>C:一致性，A:可用性，P:分区容错性</li>
-<li>分布式系统必须实现分区容错性，所以P必须实现</li>
-<li>CA不能同时满足：因为网络是不可靠的，要实现分区之间数据一致，必须依赖与网络。如果需要强一致性，网络故障时会导致不可用(without A)，如果需要保证可用性，则网络故障时只能用旧值(without C)</li>
-</ul>
-</li>
-</ul>
-<h3 id="分布式事务"><a href="#分布式事务" class="headerlink" title="分布式事务"></a>分布式事务</h3><p><a href="https://mp.weixin.qq.com/s/gg4q_53eiHCI3OUWzN7eWg" target="_blank" rel="noopener">https://mp.weixin.qq.com/s/gg4q_53eiHCI3OUWzN7eWg</a></p>
-<h4 id="XA"><a href="#XA" class="headerlink" title="XA"></a>XA</h4><h4 id="TCC"><a href="#TCC" class="headerlink" title="TCC"></a>TCC</h4><h4 id="Seata"><a href="#Seata" class="headerlink" title="Seata"></a>Seata</h4><p><a href="https://github.com/seata/seata" target="_blank" rel="noopener">https://github.com/seata/seata</a></p>
-<h4 id="ByteTCC"><a href="#ByteTCC" class="headerlink" title="ByteTCC"></a>ByteTCC</h4><p><a href="https://github.com/liuyangming/ByteTCC" target="_blank" rel="noopener">https://github.com/liuyangming/ByteTCC</a></p>
 <h3 id="Java字节码增强探秘"><a href="#Java字节码增强探秘" class="headerlink" title="Java字节码增强探秘"></a>Java字节码增强探秘</h3><p> <a href="https://www.infoq.cn/article/kzmlUsizYFlw7F9t5jPO" target="_blank" rel="noopener">https://www.infoq.cn/article/kzmlUsizYFlw7F9t5jPO</a></p>
 <h3 id="零拷贝"><a href="#零拷贝" class="headerlink" title="零拷贝"></a>零拷贝</h3><p><a href="https://www.jianshu.com/p/2581342317ce" target="_blank" rel="noopener">https://www.jianshu.com/p/2581342317ce</a></p>
 <p>一般一次读文件写文件（网络流）操作的伪代码如下</p>
@@ -953,6 +909,74 @@
 <li><a href="https://github.com/xingshaocheng/architect-awesome" target="_blank" rel="noopener">https://github.com/xingshaocheng/architect-awesome</a></li>
 </ul>
 
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="https://www.xxelin.com/2020/04/15/database-performance-optimization/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Elin Zhou">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="奕林的技术博客">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/04/15/database-performance-optimization/" class="post-title-link" itemprop="url">数据库垂直切分迁移</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2020-04-15 10:17:40 / 修改时间：14:52:07" itemprop="dateCreated datePublished" datetime="2020-04-15T10:17:40+08:00">2020-04-15</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><p>原来的业务所有数据库都在一个实例上，配置为8C64G 1TB。由于业务快速增长，在业务高峰期时，数据库QPS大约12k+，频繁出现数据库CPU使用率达到100%的情况。</p>
+<h2 id="问题分析"><a href="#问题分析" class="headerlink" title="问题分析"></a>问题分析</h2><p>短期问题可以通过升级数据库配置解决，但是单机配置有上限，且约往后越不划算，单机的瓶颈会越来越明显，所以需要考虑对数据库进行拆分。</p>
+<h3 id="水平拆分OR垂直拆分"><a href="#水平拆分OR垂直拆分" class="headerlink" title="水平拆分OR垂直拆分"></a>水平拆分OR垂直拆分</h3><p>一般情况下，考虑数据拆分时，分为水平拆分和垂直拆分两个方向。根据经验，水平拆分适合数据量非常大的单表，而垂直拆分适合多个数据表按业务情况拆分到不同的数据库实例中，所以此处选择垂直拆分。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2020/04/15/database-performance-optimization/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
       
     </div>
 
