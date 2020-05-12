@@ -322,7 +322,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2020-05-09 15:10:25" itemprop="dateModified" datetime="2020-05-09T15:10:25+08:00">2020-05-09</time>
+                <time title="修改时间：2020-05-12 13:44:33" itemprop="dateModified" datetime="2020-05-12T13:44:33+08:00">2020-05-12</time>
               </span>
 
           
@@ -471,9 +471,31 @@
 <li>Survivor空间中相同年龄的所有对象大小的总和大于Survivor空间的一半，大于这些年龄的对象可以进入老年代</li>
 </ul>
 <h5 id="三色标记法"><a href="#三色标记法" class="headerlink" title="三色标记法"></a>三色标记法</h5><p><a href="https://juejin.im/post/5e5283abf265da573d61a311" target="_blank" rel="noopener">https://juejin.im/post/5e5283abf265da573d61a311</a></p>
-<h5 id="G1"><a href="#G1" class="headerlink" title="G1"></a>G1</h5><p>当使用大内存服务器时建议使用该回收器，通过-XX:MaxGCPauseMillis可以设置每次GC停顿的最长时间，来防止需要回收大量垃圾时STW太长导致业务异常</p>
 <h4 id="类加载"><a href="#类加载" class="headerlink" title="类加载"></a>类加载</h4><ul>
 <li>双亲委托加载机制：类加载器遇到一个加载需求时，会将其委托给父加载器进行加载，如果父加载器没有加载，再由当前类加载器进行加载。方便在加载一些基础类如Object类时，不同子类加载器均加载了该类而导致各种问题（不同类加载器加载了同一个class，也视为不同类型）</li>
+</ul>
+<h4 id="垃圾收集器"><a href="#垃圾收集器" class="headerlink" title="垃圾收集器"></a>垃圾收集器</h4><h5 id="CMS"><a href="#CMS" class="headerlink" title="CMS"></a>CMS</h5><p>过程：</p>
+<ul>
+<li>初始标记(STW)：可达性分析，标记根节点直接关联的对象</li>
+<li>并发标记：从上个阶段对象出发，并发标记整个堆对象，参考<a href="#三色标记法">三色标记法</a></li>
+<li>重新标记(STW)：并发标记阶段有一些对象会修改引用关系，例如产生浮动垃圾等，需要重新标记一遍</li>
+</ul>
+<h5 id="G1"><a href="#G1" class="headerlink" title="G1"></a>G1</h5><ul>
+<li>G1将堆分为固定大小的region（1-32M），每个region可以被标记为年轻代或老年代，GC时以region为单位进行处理</li>
+<li>同一时刻只有一个region的内存处于可分配，各个线程申请自己的buffer进行内存分配，使用完成后通过CAS继续申请，但这种方式会导致内存碎片。</li>
+<li>每个region会有一个remember set，用来记录该region引用的外部对象，避免gc时扫描其他region的所有对象。在修改引用指针时，通过写屏障将该操作进行拦截，按需写入remember set</li>
+<li></li>
+</ul>
+<p>当使用大内存服务器时建议使用该回收器，通过-XX:MaxGCPauseMillis可以设置每次GC停顿的最长时间，来防止需要回收大量垃圾时STW太长导致业务异常</p>
+<h5 id="ZGC"><a href="#ZGC" class="headerlink" title="ZGC"></a>ZGC</h5><p><a href="https://juejin.im/entry/5b86a276f265da435c4402d4" target="_blank" rel="noopener">https://juejin.im/entry/5b86a276f265da435c4402d4</a></p>
+<p>JDK11引入的新垃圾收集器，可以回收超大堆（达到数T）并保证10ms以内的停顿。</p>
+<blockquote>
+<p>与标记对象的传统算法相比，ZGC在指针上做标记，在访问指针时加入Load Barrier（读屏障），比如当对象正被GC移动，指针上的颜色就会不对，这个屏障就会先把指针更新为有效地址再返回，也就是，永远只有单个对象读取时有概率被减速，而不存在为了保持应用与GC一致而粗暴整体的Stop The World。</p>
+</blockquote>
+<ul>
+<li>ZGC只有非常短暂的STW，例如根节点扫描时，但是根节点的数量是有限的，不会随着堆的大小而变化。</li>
+<li>跟G1一样把堆分为了不同region，但是可以动态决定region大小（可以是N*32M），能更好处理大对象</li>
+<li>不分代</li>
 </ul>
 <h3 id="NIO"><a href="#NIO" class="headerlink" title="NIO"></a>NIO</h3><p><a href="https://segmentfault.com/a/1190000006824196?utm_source=tuicool&amp;utm_medium=referral" target="_blank" rel="noopener">https://segmentfault.com/a/1190000006824196?utm_source=tuicool&amp;utm_medium=referral</a></p>
 <h2 id="框架"><a href="#框架" class="headerlink" title="框架"></a>框架</h2><h3 id="Spring"><a href="#Spring" class="headerlink" title="Spring"></a>Spring</h3><h4 id="IOC"><a href="#IOC" class="headerlink" title="IOC"></a>IOC</h4><h5 id="IOC容器启动过程——AbstractApplicationContext-refresh"><a href="#IOC容器启动过程——AbstractApplicationContext-refresh" class="headerlink" title="IOC容器启动过程——AbstractApplicationContext.refresh()"></a>IOC容器启动过程——AbstractApplicationContext.refresh()</h5><p><a href="https://javadoop.com/post/spring-ioc" target="_blank" rel="noopener">https://javadoop.com/post/spring-ioc</a></p>
@@ -594,7 +616,8 @@
 <li>finishRefresh() 广播初始化完成事件</li>
 </ol>
 <h4 id="AOP"><a href="#AOP" class="headerlink" title="AOP"></a>AOP</h4><p><a href="https://javadoop.com/post/spring-aop-source" target="_blank" rel="noopener">https://javadoop.com/post/spring-aop-source</a></p>
-<h4 id="SpringMVC"><a href="#SpringMVC" class="headerlink" title="SpringMVC"></a>SpringMVC</h4><h4 id="SpringCloud"><a href="#SpringCloud" class="headerlink" title="SpringCloud"></a>SpringCloud</h4><h4 id="Spring中的各类BeanPostProcessor"><a href="#Spring中的各类BeanPostProcessor" class="headerlink" title="Spring中的各类BeanPostProcessor"></a>Spring中的各类BeanPostProcessor</h4><p><a href="/2020/04/15/spring-extend-interface/">BeanPostProcessor实践之生成动态实现类</a></p>
+<h4 id="SpringMVC"><a href="#SpringMVC" class="headerlink" title="SpringMVC"></a>SpringMVC</h4><h4 id="SpringCloud"><a href="#SpringCloud" class="headerlink" title="SpringCloud"></a>SpringCloud</h4><h5 id="Eureka"><a href="#Eureka" class="headerlink" title="Eureka"></a>Eureka</h5><p><a href="https://www.infoq.cn/article/jlDJQ*3wtN2PcqTDyokh" target="_blank" rel="noopener">https://www.infoq.cn/article/jlDJQ*3wtN2PcqTDyokh</a></p>
+<h4 id="Spring中的各类BeanPostProcessor"><a href="#Spring中的各类BeanPostProcessor" class="headerlink" title="Spring中的各类BeanPostProcessor"></a>Spring中的各类BeanPostProcessor</h4><p><a href="/2020/04/15/spring-extend-interface/">BeanPostProcessor实践之生成动态实现类</a></p>
 <h4 id="Spring-如何解决循环依赖"><a href="#Spring-如何解决循环依赖" class="headerlink" title="Spring 如何解决循环依赖"></a>Spring 如何解决循环依赖</h4><p><a href="https://segmentfault.com/a/1190000015221968" target="_blank" rel="noopener">https://segmentfault.com/a/1190000015221968</a></p>
 <p>创建Bean的时候，每次创建完对象实例(对象A)，在进行参数设置之前，会将当前对象（还没有赋值完毕的<code>Bean</code>，也称为<code>早期引用</code>）先缓存起来；在参数赋值时，需要创建其依赖的对象，如果这个依赖的对象(对象B)正好依赖了当前需要被赋值的<code>Bean</code>，其可以从缓存中获取到其<code>早期依赖</code>，那么这个被依赖的对象(对象B)就能顺利初始化完成，随后对象A也可以被顺利初始化完成。</p>
 <h4 id="BeanFactory-和-ApplicationContext"><a href="#BeanFactory-和-ApplicationContext" class="headerlink" title="BeanFactory 和 ApplicationContext"></a>BeanFactory 和 ApplicationContext</h4><p><code>BeanFactory</code>实现了<code>IOC</code>容器最基本的功能，其定义了一系列<code>getBean</code>接口，通过这个方法可以获取容器所管理的<code>Bean</code>。<code>ApplicationContext</code>继承了<code>BeanFactory</code>，在<code>BeanFactory</code>的基础上扩展了一些功能，例如国际化、资源访问、事件发布等。其也是<code>Spring</code>框架的基础，提供了各种扩展能力。</p>
