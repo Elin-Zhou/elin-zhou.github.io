@@ -322,7 +322,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2020-05-13 17:00:55" itemprop="dateModified" datetime="2020-05-13T17:00:55+08:00">2020-05-13</time>
+                <time title="修改时间：2020-05-18 10:30:15" itemprop="dateModified" datetime="2020-05-18T10:30:15+08:00">2020-05-18</time>
               </span>
 
           
@@ -1002,6 +1002,12 @@
 <h4 id="Seata"><a href="#Seata" class="headerlink" title="Seata"></a>Seata</h4><p><a href="https://github.com/seata/seata" target="_blank" rel="noopener">https://github.com/seata/seata</a></p>
 <h4 id="ByteTCC"><a href="#ByteTCC" class="headerlink" title="ByteTCC"></a>ByteTCC</h4><p><a href="https://github.com/liuyangming/ByteTCC" target="_blank" rel="noopener">https://github.com/liuyangming/ByteTCC</a></p>
 <h3 id="文件IO性能"><a href="#文件IO性能" class="headerlink" title="文件IO性能"></a>文件IO性能</h3><p><a href="https://www.cnkirito.moe/file-io-best-practise/" target="_blank" rel="noopener">https://www.cnkirito.moe/file-io-best-practise/</a></p>
+<h3 id="缓存"><a href="#缓存" class="headerlink" title="缓存"></a>缓存</h3><p><a href="https://juejin.im/post/5d7c7a14f265da03f47c4f93" target="_blank" rel="noopener">https://juejin.im/post/5d7c7a14f265da03f47c4f93</a></p>
+<p><a href="https://coolshell.cn/articles/17416.html" target="_blank" rel="noopener">https://coolshell.cn/articles/17416.html</a></p>
+<p>一般情况下，先写数据库再删除缓存，当数据已失效并有读写线程并发时，才有可能出校小概率读进程把脏数据写入缓存的情况发生。</p>
+<p>可以通过异步MQ消息、binlog订阅更新、分布式读写锁等方式提高一致性。</p>
+<p>更新时选择删除缓存而不是更新缓存是由于更新的数据不一定是热点数据，直接写入内存浪费空间，而且缓存数据可能是经过加工，非热点数据提前处理也浪费性能。</p>
+<p>对一致性要求高的数据可以考虑通过数据异步刷盘的方式，参考操作系统中的<code>PageCache</code>，数据读写全走缓存，写数据通过定时任务异步刷盘。该方案有丢数据的风险。</p>
 <h2 id="其他"><a href="#其他" class="headerlink" title="其他"></a>其他</h2><h3 id="引用"><a href="#引用" class="headerlink" title="引用"></a>引用</h3><ul>
 <li>强引用</li>
 <li>弱引用：内存溢出之前进行回收，用来作为缓存</li>
