@@ -223,74 +223,6 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
-    <link itemprop="mainEntityOfPage" href="https://www.xxelin.com/2020/04/15/database-performance-optimization/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Elin Zhou">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="奕林的技术博客">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/04/15/database-performance-optimization/" class="post-title-link" itemprop="url">数据库垂直切分迁移</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-              
-
-              <time title="创建时间：2020-04-15 10:17:40 / 修改时间：14:52:07" itemprop="dateCreated datePublished" datetime="2020-04-15T10:17:40+08:00">2020-04-15</time>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><p>原来的业务所有数据库都在一个实例上，配置为8C64G 1TB。由于业务快速增长，在业务高峰期时，数据库QPS大约12k+，频繁出现数据库CPU使用率达到100%的情况。</p>
-<h2 id="问题分析"><a href="#问题分析" class="headerlink" title="问题分析"></a>问题分析</h2><p>短期问题可以通过升级数据库配置解决，但是单机配置有上限，且约往后越不划算，单机的瓶颈会越来越明显，所以需要考虑对数据库进行拆分。</p>
-<h3 id="水平拆分OR垂直拆分"><a href="#水平拆分OR垂直拆分" class="headerlink" title="水平拆分OR垂直拆分"></a>水平拆分OR垂直拆分</h3><p>一般情况下，考虑数据拆分时，分为水平拆分和垂直拆分两个方向。根据经验，水平拆分适合数据量非常大的单表，而垂直拆分适合多个数据表按业务情况拆分到不同的数据库实例中，所以此处选择垂直拆分。</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2020/04/15/database-performance-optimization/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
     <link itemprop="mainEntityOfPage" href="https://www.xxelin.com/2020/04/15/java-skills/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -322,7 +254,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2020-05-18 10:30:15" itemprop="dateModified" datetime="2020-05-18T10:30:15+08:00">2020-05-18</time>
+                <time title="修改时间：2020-05-18 11:31:41" itemprop="dateModified" datetime="2020-05-18T11:31:41+08:00">2020-05-18</time>
               </span>
 
           
@@ -879,7 +811,7 @@
 <li>模板方法</li>
 <li>工厂</li>
 </ul>
-<h2 id="网络"><a href="#网络" class="headerlink" title="网络"></a>网络</h2><h3 id="连接与断开"><a href="#连接与断开" class="headerlink" title="连接与断开"></a>连接与断开</h3><p><a href="https://zhuanlan.zhihu.com/p/86426969" target="_blank" rel="noopener">https://zhuanlan.zhihu.com/p/86426969</a></p>
+<h2 id="网络"><a href="#网络" class="headerlink" title="网络"></a>网络</h2><h3 id="连接"><a href="#连接" class="headerlink" title="连接"></a>连接</h3><p><a href="https://zhuanlan.zhihu.com/p/86426969" target="_blank" rel="noopener">https://zhuanlan.zhihu.com/p/86426969</a></p>
 <h4 id="三次握手"><a href="#三次握手" class="headerlink" title="三次握手"></a>三次握手</h4><p>三次握手是指服务器与客户端建立一个TCP链接一共需要通讯三次，目的是为了互相确认彼此的接受和发送能力均正常。</p>
 <table>
 <thead>
@@ -953,6 +885,24 @@
 </tbody></table>
 <h5 id="第四次接受到响应报文后为何需要等待2MSL才能进入CLOSED"><a href="#第四次接受到响应报文后为何需要等待2MSL才能进入CLOSED" class="headerlink" title="第四次接受到响应报文后为何需要等待2MSL才能进入CLOSED"></a>第四次接受到响应报文后为何需要等待2MSL才能进入CLOSED</h5><p><code>MSL</code>（Maximum Segment Lifetime）表示一个报文在网络传输时最大生命周期，如果超过这个时间，就算被接受到，报文也会被丢弃。</p>
 <p>第四次挥手时，客户端的<code>ACK</code>报文在传输中可能会丢失，服务器会要求客户端进行重传，如果客户端立即进入<code>CLOSED</code>，将没有能力响应，从而导致服务端无法正常<code>CLOSED</code>。等待2MSL表示服务端已经无需客户端进行重传了，则可以关闭。</p>
+<h3 id="HTTP"><a href="#HTTP" class="headerlink" title="HTTP"></a>HTTP</h3><h4 id="HTTP1-0-与-HTTP1-1的区别"><a href="#HTTP1-0-与-HTTP1-1的区别" class="headerlink" title="HTTP1.0 与 HTTP1.1的区别"></a>HTTP1.0 与 HTTP1.1的区别</h4><ol>
+<li>更多的缓存策略，如If-Unmodified-Since, If-Match, If-None-Match</li>
+<li>支持客户端请求部分数据，可以实现断点续传</li>
+<li>请求头中增加了<code>host</code>字段</li>
+<li>支持长链接和流水线，提高性能</li>
+</ol>
+<h4 id="HTTP1-1-与-HTTP2-0的区别"><a href="#HTTP1-1-与-HTTP2-0的区别" class="headerlink" title="HTTP1.1 与 HTTP2.0的区别"></a>HTTP1.1 与 HTTP2.0的区别</h4><ol>
+<li>多路复用：降低服务端连接压力，降低传输延迟</li>
+<li>首部压缩：避免<code>header</code>中数据重复传输</li>
+<li>服务端推送：服务端可以将资源主动推送给客户端，提高加载效率</li>
+</ol>
+<h4 id="HTTP-与-HTTPS的区别"><a href="#HTTP-与-HTTPS的区别" class="headerlink" title="HTTP 与 HTTPS的区别"></a>HTTP 与 HTTPS的区别</h4><p><code>HTTP</code>数据传输完全明文，容易被抓包和劫持；<code>HTTPS</code>使用<code>TLS</code>（<code>SSL</code>的新版本）来保证安全传输，数据加密传输。</p>
+<p>HTTPS过程：</p>
+<ol>
+<li>在握手过程中，客户端向服务端请求证书，服务端返回证书及公钥</li>
+<li>客户端收到证书后向证书签发机构验证</li>
+<li>客户端生成对称秘钥，用服务端公钥加密后传输给服务端，后续请求通过该秘钥加密通信</li>
+</ol>
 <h2 id="数据结构-1"><a href="#数据结构-1" class="headerlink" title="数据结构"></a>数据结构</h2><ul>
 <li>二叉搜索树</li>
 <li>平衡树</li>
@@ -1040,6 +990,74 @@
 <li><a href="https://github.com/xingshaocheng/architect-awesome" target="_blank" rel="noopener">https://github.com/xingshaocheng/architect-awesome</a></li>
 </ul>
 
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="https://www.xxelin.com/2020/04/15/database-performance-optimization/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Elin Zhou">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="奕林的技术博客">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/04/15/database-performance-optimization/" class="post-title-link" itemprop="url">数据库垂直切分迁移</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2020-04-15 10:17:40 / 修改时间：14:52:07" itemprop="dateCreated datePublished" datetime="2020-04-15T10:17:40+08:00">2020-04-15</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><p>原来的业务所有数据库都在一个实例上，配置为8C64G 1TB。由于业务快速增长，在业务高峰期时，数据库QPS大约12k+，频繁出现数据库CPU使用率达到100%的情况。</p>
+<h2 id="问题分析"><a href="#问题分析" class="headerlink" title="问题分析"></a>问题分析</h2><p>短期问题可以通过升级数据库配置解决，但是单机配置有上限，且约往后越不划算，单机的瓶颈会越来越明显，所以需要考虑对数据库进行拆分。</p>
+<h3 id="水平拆分OR垂直拆分"><a href="#水平拆分OR垂直拆分" class="headerlink" title="水平拆分OR垂直拆分"></a>水平拆分OR垂直拆分</h3><p>一般情况下，考虑数据拆分时，分为水平拆分和垂直拆分两个方向。根据经验，水平拆分适合数据量非常大的单表，而垂直拆分适合多个数据表按业务情况拆分到不同的数据库实例中，所以此处选择垂直拆分。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2020/04/15/database-performance-optimization/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
       
     </div>
 
