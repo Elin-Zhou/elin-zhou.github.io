@@ -154,6 +154,73 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="https://www.xxelin.com/2020/05/29/SpringBoot-BeanDefinition-loading/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Elin Zhou">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="奕林的技术博客">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/05/29/SpringBoot-BeanDefinition-loading/" class="post-title-link" itemprop="url">SpringBoot BeanDefinition 加载过程</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2020-05-29 16:28:40 / 修改时间：16:32:35" itemprop="dateCreated datePublished" datetime="2020-05-29T16:28:40+08:00">2020-05-29</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h2 id="为什么要强调SpringBoot中的BeanDefinition加载过程？"><a href="#为什么要强调SpringBoot中的BeanDefinition加载过程？" class="headerlink" title="为什么要强调SpringBoot中的BeanDefinition加载过程？"></a>为什么要强调SpringBoot中的BeanDefinition加载过程？</h2><p>在阅读很多相对比较旧的讲解<code>Spring容器</code>的书籍或文章时，由于当时<code>SpringBoot</code>并不是很盛行，甚至还没有<code>SpringBoot</code>，导致对于<code>Spring容器</code>启动的讲解并没有提到与<code>SpringBoot</code>容器启动过程的差异，导致很多读者默认为这两者是一样的。</p>
+<p>事实上，在容器启动时，传统的配置式的<code>Spring</code>项目与使用了<code>SpringBoot</code>的项目在启动时大体上是相近的，但是区别也还是不小的，本文要提到的<code>BeanDefinition</code> 加载过程中是其中一个例子。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2020/05/29/SpringBoot-BeanDefinition-loading/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
     <link itemprop="mainEntityOfPage" href="https://www.xxelin.com/2020/04/26/BeanFactory-get-bean/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -476,81 +543,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
-    <link itemprop="mainEntityOfPage" href="https://www.xxelin.com/2020/04/15/spring-extend-interface/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Elin Zhou">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="奕林的技术博客">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/04/15/spring-extend-interface/" class="post-title-link" itemprop="url">Spring支持的扩展接口</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2020-04-15 11:17:40" itemprop="dateCreated datePublished" datetime="2020-04-15T11:17:40+08:00">2020-04-15</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2020-04-27 10:23:32" itemprop="dateModified" datetime="2020-04-27T10:23:32+08:00">2020-04-27</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>本文主要介绍<code>Spring</code>中所支持的常用的扩展接口，<code>Spring</code>非常庞大且已成体系，众多的开发者包括<code>Spring</code>框架的开发者不可能随意改动框架原来来实现个性化的需求，所以提供了许多扩展接口，遵循<code>开闭原则</code></p>
-<blockquote>
-<p>开闭原则定义：一个软件实体。如类/模块/函都应该对扩展开放，对修改关闭。</p>
-</blockquote>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2020/04/15/spring-extend-interface/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -620,7 +612,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">8</span>
+          <span class="site-state-item-count">9</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
