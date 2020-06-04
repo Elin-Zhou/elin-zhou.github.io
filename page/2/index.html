@@ -329,7 +329,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2020-06-03 17:29:20" itemprop="dateModified" datetime="2020-06-03T17:29:20+08:00">2020-06-03</time>
+                <time title="修改时间：2020-06-04 14:29:11" itemprop="dateModified" datetime="2020-06-04T14:29:11+08:00">2020-06-04</time>
               </span>
 
           
@@ -1260,25 +1260,25 @@
 <p>CPU使用率是指进程对cpu占用的时间比例</p>
 <p>例如只有一个进程使用一颗单核CPU，IO等待了15ms，CPU计算了45ms，那么此时的CPU load是1，CPU 使用率是75%</p>
 <h3 id="Java字节码增强探秘"><a href="#Java字节码增强探秘" class="headerlink" title="Java字节码增强探秘"></a>Java字节码增强探秘</h3><p> <a href="https://www.infoq.cn/article/kzmlUsizYFlw7F9t5jPO" target="_blank" rel="noopener">https://www.infoq.cn/article/kzmlUsizYFlw7F9t5jPO</a></p>
-<h3 id="零拷贝"><a href="#零拷贝" class="headerlink" title="零拷贝"></a>零拷贝</h3><p><a href="https://www.jianshu.com/p/2581342317ce" target="_blank" rel="noopener">https://www.jianshu.com/p/2581342317ce</a></p>
+<h3 id="零拷贝"><a href="#零拷贝" class="headerlink" title="零拷贝"></a>零拷贝</h3><p><a href="https://github.com/javagrowing/JGrowing/blob/master/计算机基础/操作系统/IO/走进科学之揭开神秘的零拷贝.md" target="_blank" rel="noopener">走进科学之揭开神秘的零拷贝</a></p>
 <p>一般一次读文件写文件（网络流）操作的伪代码如下</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">File.read(file, buf, len);</span><br><span class="line">Socket.send(socket, buf, len);</span><br></pre></td></tr></table></figure>
 
-
-
+<p>DMA：Direct Memory Access 实现主存与I/O设备之间数据交换不需要依赖CPU</p>
 <p>期间经历了四次数据拷贝，分别为：</p>
 <ol>
-<li>从磁盘将文件读入内核地址空间中</li>
-<li>read方法返回，将数据从内核空间中拷贝到用户地址空间中</li>
-<li>调用send方法，将用户空间数据拷贝到内核空间中套接字相关缓存区</li>
-<li>将套接字相关缓存区中的数据拷贝到协议引擎进行发送</li>
+<li>CPU发指令给I/O设备的DMA，由DMA将我们磁盘中的数据传输到内核空间的内核buffer。</li>
+<li>第二阶段触发我们的CPU中断，CPU开始将将数据从kernel buffer拷贝至我们的应用缓存</li>
+<li>CPU将数据从应用缓存拷贝到内核中的socket buffer.</li>
+<li>DMA将数据从socket buffer中的数据拷贝到网卡缓存</li>
 </ol>
 <p>其中1、4部分不消耗CPU资源</p>
-<p>其中步骤2可以省略，通过FileChannel的transferTo() 方法可以直接将数据从文件通道直接写入目标写字节通道</p>
+<p>其中步骤2可以省略，通过FileChannel的transferTo() 方法可以直接将数据从文件通道直接写入目标写字节通道，即数据不拷贝到用户态内存中，仅加载入内核缓冲区，所以不需要CPU参与进行数据拷贝。</p>
 <p>Linux2.4以后进行了优化，可以将从文件中读取到内核中的数据信息追加到套接字缓冲区，此时数据将可以直接从内核缓冲区直接拷贝到协议引擎，此次拷贝不需要消耗CPU</p>
-<h2 id="汇总"><a href="#汇总" class="headerlink" title="汇总"></a>汇总</h2><ul>
+<h2 id="博客推荐"><a href="#博客推荐" class="headerlink" title="博客推荐"></a>博客推荐</h2><ul>
 <li><a href="https://javadoop.com/" target="_blank" rel="noopener">https://javadoop.com</a></li>
 <li><a href="https://github.com/xingshaocheng/architect-awesome" target="_blank" rel="noopener">https://github.com/xingshaocheng/architect-awesome</a></li>
+<li><a href="https://github.com/javagrowing/JGrowing" target="_blank" rel="noopener">https://github.com/javagrowing/JGrowing</a></li>
 </ul>
 
       
