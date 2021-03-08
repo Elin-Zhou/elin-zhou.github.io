@@ -2,10 +2,13 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://www.xxelin.com/2021/02/08/mockito-cookbook/</loc>
-    <lastmod>2021-02-18</lastmod>
+    <lastmod>2021-03-08</lastmod>
+  </url>  <url>
+    <loc>https://www.xxelin.com/2020/04/17/How-to-Synchronize-Blocks-by-the-Value-of-the-Object-in-Java/</loc>
+    <lastmod>2021-03-08</lastmod>
   </url>  <url>
     <loc>https://www.xxelin.com/2020/04/15/java-skills/</loc>
-    <lastmod>2021-02-08</lastmod>
+    <lastmod>2021-03-01</lastmod>
   </url>  <url>
     <loc>https://www.xxelin.com/2020/05/29/SpringBoot-BeanDefinition-loading/</loc>
     <lastmod>2020-05-29</lastmod>
@@ -21,9 +24,6 @@
   </url>  <url>
     <loc>https://www.xxelin.com/2020/04/15/spring-utils/</loc>
     <lastmod>2020-04-23</lastmod>
-  </url>  <url>
-    <loc>https://www.xxelin.com/2020/04/17/How-to-Synchronize-Blocks-by-the-Value-of-the-Object-in-Java/</loc>
-    <lastmod>2020-04-20</lastmod>
   </url>  <url>
     <loc>https://www.xxelin.com/2020/04/15/database-performance-optimization/</loc>
     <lastmod>2020-04-15</lastmod>
