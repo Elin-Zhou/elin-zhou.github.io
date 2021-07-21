@@ -2,6 +2,27 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>https://www.xxelin.com/about/index.html</loc>
+    
+    <lastmod>2021-07-21T12:41:01.024Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>https://www.xxelin.com/2021/07/21/kotlin-coroutine-simple-use/</loc>
+    
+    <lastmod>2021-07-21T12:39:34.777Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>https://www.xxelin.com/2020/04/15/java-skills/</loc>
+    
+    <lastmod>2021-03-12T02:48:36.542Z</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>https://www.xxelin.com/2021/02/08/mockito-cookbook/</loc>
     
     <lastmod>2021-03-08T06:45:05.214Z</lastmod>
@@ -12,20 +33,6 @@
     <loc>https://www.xxelin.com/2020/04/17/How-to-Synchronize-Blocks-by-the-Value-of-the-Object-in-Java/</loc>
     
     <lastmod>2021-03-08T06:06:12.604Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>https://www.xxelin.com/2020/04/15/java-skills/</loc>
-    
-    <lastmod>2021-03-01T02:51:22.054Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>https://www.xxelin.com/about/index.html</loc>
-    
-    <lastmod>2021-02-18T08:32:52.869Z</lastmod>
     
   </url>
   

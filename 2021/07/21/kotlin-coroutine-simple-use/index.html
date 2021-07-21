@@ -20,27 +20,34 @@
     var CONFIG = {"hostname":"www.xxelin.com","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"default"},"back2top":{"enable":true,"sidebar":true,"scrollpercent":true},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"valine","storage":true,"lazyload":false,"nav":null,"activeClass":"valine"},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
   </script>
 
-  <meta property="og:type" content="website">
-<meta property="og:title" content="奕林的技术博客">
-<meta property="og:url" content="https://www.xxelin.com/index.html">
+  <meta name="description" content="背景目前的业务场景中，有这样的需求：给上游提供一个批量接口，然后在本系统中，将批量请求拆成单独的请求，每个请求使用一个单独的新线程进行简单包装后，调用下游进行处理，而下游提供的服务由于处理逻辑较多，所以响应速度不快，需要大约大几百毫秒。 目前提供给上游的接口，最多一批处理一百个任务，目前每个任务都会拆成一个单独的线程，也就是上游的一次调用最多会占用100个线程，如果当前系统最大支持nQPS，下游接">
+<meta property="og:type" content="article">
+<meta property="og:title" content="使用协程进行简单系统优化">
+<meta property="og:url" content="https://www.xxelin.com/2021/07/21/kotlin-coroutine-simple-use/index.html">
 <meta property="og:site_name" content="奕林的技术博客">
+<meta property="og:description" content="背景目前的业务场景中，有这样的需求：给上游提供一个批量接口，然后在本系统中，将批量请求拆成单独的请求，每个请求使用一个单独的新线程进行简单包装后，调用下游进行处理，而下游提供的服务由于处理逻辑较多，所以响应速度不快，需要大约大几百毫秒。 目前提供给上游的接口，最多一批处理一百个任务，目前每个任务都会拆成一个单独的线程，也就是上游的一次调用最多会占用100个线程，如果当前系统最大支持nQPS，下游接">
+<meta property="article:published_time" content="2021-07-21T12:37:18.000Z">
+<meta property="article:modified_time" content="2021-07-21T12:39:34.777Z">
 <meta property="article:author" content="Elin Zhou">
+<meta property="article:tag" content="Java">
+<meta property="article:tag" content="Kotlin">
+<meta property="article:tag" content="协程">
 <meta name="twitter:card" content="summary">
 
-<link rel="canonical" href="https://www.xxelin.com/">
+<link rel="canonical" href="https://www.xxelin.com/2021/07/21/kotlin-coroutine-simple-use/">
 
 
 <script id="page-configurations">
   // https://hexo.io/docs/variables.html
   CONFIG.page = {
     sidebar: "",
-    isHome : true,
-    isPost : false,
+    isHome : false,
+    isPost : true,
     lang   : 'zh-Hans'
   };
 </script>
 
-  <title>奕林的技术博客</title>
+  <title>使用协程进行简单系统优化 | 奕林的技术博客</title>
   
 
 
@@ -148,9 +155,10 @@
         <div class="content-wrap">
           
 
-          <div class="content index posts-expand">
+          <div class="content post posts-expand">
             
-      
+
+    
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
@@ -166,10 +174,9 @@
       <meta itemprop="name" content="奕林的技术博客">
     </span>
       <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2021/07/21/kotlin-coroutine-simple-use/" class="post-title-link" itemprop="url">使用协程进行简单系统优化</a>
-        </h2>
+        <h1 class="post-title" itemprop="name headline">
+          使用协程进行简单系统优化
+        </h1>
 
         <div class="post-meta">
             <span class="post-meta-item">
@@ -207,7 +214,7 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><p>目前的业务场景中，有这样的需求：给上游提供一个批量接口，然后在本系统中，将批量请求拆成单独的请求，每个请求使用一个单独的新线程进行简单包装后，调用下游进行处理，而下游提供的服务由于处理逻辑较多，所以响应速度不快，需要大约大几百毫秒。</p>
+        <h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><p>目前的业务场景中，有这样的需求：给上游提供一个批量接口，然后在本系统中，将批量请求拆成单独的请求，每个请求使用一个单独的新线程进行简单包装后，调用下游进行处理，而下游提供的服务由于处理逻辑较多，所以响应速度不快，需要大约大几百毫秒。</p>
 <p>目前提供给上游的接口，最多一批处理一百个任务，目前每个任务都会拆成一个单独的线程，也就是上游的一次调用最多会占用100个线程，如果当前系统最大支持nQPS，下游接口的平均RT为m秒，那么光这一个接口，就需要线程池中提供100nm个线程。</p>
 <p>例：单机支持500QPS，下游每个接口响应时间为0.1s，那么waybilltemplate在这一个接口上就需要100 * 100 * 0.1 = 1000个线程。</p>
 <h2 id="分析"><a href="#分析" class="headerlink" title="分析"></a>分析</h2><p>对于下游来说，渲染性能可以不断优化或通过扩容解决流量增长的问题，可以假设平均响应RT不变，此处暂且不考虑。而对于本系统来说，随着流量上涨，在不扩容情况下，单机QPS将会逐步上涨，也就意味着上文计算的线程数将不断上涨。。</p>
@@ -310,395 +317,62 @@
 <p>通过最终的实测效果，当系统处于低水位的情况时，如果一个系统内存在大量IO密集型的多线程任务，使用协程可以降低系统的CPU使用。由于环境限制导致笔者暂时没有模拟高水位情况下的效果，也就是目前线程的频繁切换并不是系统的瓶颈，所以接口的RT并没有明显优化效果。</p>
 <p>不过需要注意，对于计算密集型的任务，由于CPU计算资源是系统的短板，所以协程并不能明显提升运行效率（多线程也不能，因为频繁切换线程仍会是无用功）。</p>
 
-      
     </div>
 
     
     
     
+        <div class="reward-container">
+  <div>如果这篇文章对你有帮助，可以请作者喝杯咖啡~</div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    打赏
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/images/wechatpay.JPG" alt="Elin Zhou 微信支付">
+        <p>微信支付</p>
+      </div>
+      
+      <div style="display: inline-block;">
+        <img src="/images/alipay.JPG" alt="Elin Zhou 支付宝">
+        <p>支付宝</p>
+      </div>
+
+  </div>
+</div>
+
+
       <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
+          <div class="post-tags">
+              <a href="/tags/Java/" rel="tag"># Java</a>
+              <a href="/tags/Kotlin/" rel="tag"># Kotlin</a>
+              <a href="/tags/%E5%8D%8F%E7%A8%8B/" rel="tag"># 协程</a>
+          </div>
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
-    <link itemprop="mainEntityOfPage" href="https://www.xxelin.com/2021/02/08/mockito-cookbook/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Elin Zhou">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="奕林的技术博客">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2021/02/08/mockito-cookbook/" class="post-title-link" itemprop="url">Mockito&PowerMockito使用</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2021-02-08 16:30:40" itemprop="dateCreated datePublished" datetime="2021-02-08T16:30:40+08:00">2021-02-08</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-03-08 14:45:05" itemprop="dateModified" datetime="2021-03-08T14:45:05+08:00">2021-03-08</time>
-              </span>
-
-          
-  
-  <span class="post-meta-item">
-    
-      <span class="post-meta-item-icon">
-        <i class="far fa-comment"></i>
-      </span>
-      <span class="post-meta-item-text">Valine：</span>
-    
-    <a title="valine" href="/2021/02/08/mockito-cookbook/#valine-comments" itemprop="discussionUrl">
-      <span class="post-comments-count valine-comment-count" data-xid="/2021/02/08/mockito-cookbook/" itemprop="commentCount"></span>
-    </a>
-  </span>
-  
-  
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h2 id="为什么要进行mock数据"><a href="#为什么要进行mock数据" class="headerlink" title="为什么要进行mock数据"></a>为什么要进行mock数据</h2><p>平时我们在写单测时，因为需要测试一些业务类，不可避免在业务类中会访问外部存储资源，例如数据库、外部接口等。如果编写了依赖外部资源的单测，在运行时不可避免有两个问题：</p>
-<ol>
-<li>启动或运行慢</li>
-<li>外部数据不稳定，可能会导致单测运行结果与预期不符</li>
-</ol>
-<p>在很多Git管理的项目中，会配置一些自动化的流水线，可能在每一次提交或MR后会全量跑一遍所有单测，一个大项目可能动辄几百几千个单测方法，如果每一个都要去访问外部资源，那么一次流程走完会浪费很多时间；其次外部数据不稳定，原来A状态的数据变成了B状态，单测可能就无法通过了，这样对单测的维护也造成了很大的困难。</p>
-<p>鉴于上述原因，单测不应该依赖外部的数据源，我们的单测中如果需要是调用访问外部数据源的方法，最好的办法就行进行mock。</p>
-<p>Java项目中，在这里推荐一个mock数据的神器——<code>Mockito</code>，以及它的升级版<code>PowerMockito</code>。</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2021/02/08/mockito-cookbook/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
         
-      
-    </div>
 
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
-    <link itemprop="mainEntityOfPage" href="https://www.xxelin.com/2020/05/29/SpringBoot-BeanDefinition-loading/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Elin Zhou">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="奕林的技术博客">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/05/29/SpringBoot-BeanDefinition-loading/" class="post-title-link" itemprop="url">SpringBoot BeanDefinition 加载过程</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-              
-
-              <time title="创建时间：2020-05-29 16:28:40 / 修改时间：16:32:35" itemprop="dateCreated datePublished" datetime="2020-05-29T16:28:40+08:00">2020-05-29</time>
-            </span>
-
-          
-  
-  <span class="post-meta-item">
-    
-      <span class="post-meta-item-icon">
-        <i class="far fa-comment"></i>
-      </span>
-      <span class="post-meta-item-text">Valine：</span>
-    
-    <a title="valine" href="/2020/05/29/SpringBoot-BeanDefinition-loading/#valine-comments" itemprop="discussionUrl">
-      <span class="post-comments-count valine-comment-count" data-xid="/2020/05/29/SpringBoot-BeanDefinition-loading/" itemprop="commentCount"></span>
-    </a>
-  </span>
-  
-  
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h2 id="为什么要强调SpringBoot中的BeanDefinition加载过程？"><a href="#为什么要强调SpringBoot中的BeanDefinition加载过程？" class="headerlink" title="为什么要强调SpringBoot中的BeanDefinition加载过程？"></a>为什么要强调SpringBoot中的BeanDefinition加载过程？</h2><p>在阅读很多相对比较旧的讲解<code>Spring容器</code>的书籍或文章时，由于当时<code>SpringBoot</code>并不是很盛行，甚至还没有<code>SpringBoot</code>，导致对于<code>Spring容器</code>启动的讲解并没有提到与<code>SpringBoot</code>容器启动过程的差异，导致很多读者默认为这两者是一样的。</p>
-<p>事实上，在容器启动时，传统的配置式的<code>Spring</code>项目与使用了<code>SpringBoot</code>的项目在启动时大体上是相近的，但是区别也还是不小的，本文要提到的<code>BeanDefinition</code> 加载过程中是其中一个例子。</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2020/05/29/SpringBoot-BeanDefinition-loading/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
         
-      
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2021/02/08/mockito-cookbook/" rel="prev" title="Mockito&PowerMockito使用">
+      <i class="fa fa-chevron-left"></i> Mockito&PowerMockito使用
+    </a></div>
+      <div class="post-nav-item"></div>
     </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
       </footer>
+    
   </article>
   
   
   
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
-    <link itemprop="mainEntityOfPage" href="https://www.xxelin.com/2020/04/26/BeanFactory-get-bean/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Elin Zhou">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="奕林的技术博客">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/04/26/BeanFactory-get-bean/" class="post-title-link" itemprop="url">BeanFactory getBean源码分析</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2020-04-26 11:19:40" itemprop="dateCreated datePublished" datetime="2020-04-26T11:19:40+08:00">2020-04-26</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2020-04-27 14:38:05" itemprop="dateModified" datetime="2020-04-27T14:38:05+08:00">2020-04-27</time>
-              </span>
-
-          
-  
-  <span class="post-meta-item">
-    
-      <span class="post-meta-item-icon">
-        <i class="far fa-comment"></i>
-      </span>
-      <span class="post-meta-item-text">Valine：</span>
-    
-    <a title="valine" href="/2020/04/26/BeanFactory-get-bean/#valine-comments" itemprop="discussionUrl">
-      <span class="post-comments-count valine-comment-count" data-xid="/2020/04/26/BeanFactory-get-bean/" itemprop="commentCount"></span>
-    </a>
-  </span>
-  
-  
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h2 id="初始BeanFactory"><a href="#初始BeanFactory" class="headerlink" title="初始BeanFactory"></a>初始BeanFactory</h2><p>在<code>Spring</code>中，如果我们需要从<code>IOC</code>容器中获取一个对象，在不考虑自动注入的场景，可以通过调用<code>BeanFactory#getBean(String)</code>方法。</p>
-<p>这个方法不但承担了从容器中取出已创建好的对象这一个职责，容器在启动的时候，依次初始化所有需要实例化的对象时，也调用了这个对象，所以我们可以判断这个方法应该有两个功能：</p>
-<ol>
-<li>如果容器中存在该对象，则直接返回</li>
-<li>如果容器中不存在该对象，则创建</li>
-</ol>
-<p>其中第一点的实现方式很容易猜到，应该是有一个<code>Map</code>对象，其中存储了<code>beanName</code>与<code>bean</code>的映射关系，在调用<code>getBean</code>方法时，从<code>Map</code>中查询，如果存在该对象，则直接返回。</p>
-<p>所以本文主要分析第二种情况，当<code>bean</code>不存在时，是如何进行初始化的。</p>
-<p>为了更加深入理解<code>bean</code>初始化的过程，本文还会解释如下几个问题，读者可以带着这几个问题进行阅读：</p>
-<ol>
-<li><a href="/2020/04/15/spring-extend-interface/">Spring支持的扩展接口</a>一文中提到的跟<code>bean</code>初始化相关的扩展接口是如何实现的？</li>
-<li>如果两个<code>bean</code> 循环引用的情况如何处理？</li>
-<li>如果两个<code>bean</code>互相依赖(depend-on)如何处理？</li>
-<li><code>Singleton</code>和<code>Prototype</code>在实现上的差别是什么？</li>
-</ol>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2020/04/26/BeanFactory-get-bean/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
-    <link itemprop="mainEntityOfPage" href="https://www.xxelin.com/2020/04/23/ProxyFactory-source/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Elin Zhou">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="奕林的技术博客">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/04/23/ProxyFactory-source/" class="post-title-link" itemprop="url">ProxyFactory源码分析</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2020-04-23 03:05:40" itemprop="dateCreated datePublished" datetime="2020-04-23T03:05:40+08:00">2020-04-23</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2020-04-24 11:58:02" itemprop="dateModified" datetime="2020-04-24T11:58:02+08:00">2020-04-24</time>
-              </span>
-
-          
-  
-  <span class="post-meta-item">
-    
-      <span class="post-meta-item-icon">
-        <i class="far fa-comment"></i>
-      </span>
-      <span class="post-meta-item-text">Valine：</span>
-    
-    <a title="valine" href="/2020/04/23/ProxyFactory-source/#valine-comments" itemprop="discussionUrl">
-      <span class="post-comments-count valine-comment-count" data-xid="/2020/04/23/ProxyFactory-source/" itemprop="commentCount"></span>
-    </a>
-  </span>
-  
-  
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h2 id="初识ProxyFactory"><a href="#初识ProxyFactory" class="headerlink" title="初识ProxyFactory"></a>初识ProxyFactory</h2><p>在<a href="/2020/04/15/spring-utils/">Spring常用工具</a>一文中提到，<code>ProxyFactory</code>可以用来手动生成代理类，以实现对某些对象进行增强。</p>
-<p>简单再贴一下<code>ProxyFactory</code>的使用方式：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Bean</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">hello</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="string">"hello"</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        ProxyFactory proxyFactory = <span class="keyword">new</span> ProxyFactory();</span><br><span class="line">        proxyFactory.setTarget(<span class="keyword">new</span> Bean());</span><br><span class="line">        proxyFactory.addAdvice((MethodInterceptor) invocation -&gt; &#123;</span><br><span class="line">            <span class="keyword">if</span> (!<span class="string">"hello"</span>.equals(invocation.getMethod().getName())) &#123;</span><br><span class="line">                <span class="keyword">return</span> invocation.proceed();</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">return</span> <span class="string">"elin, "</span> + invocation.proceed() + <span class="string">"!"</span>;</span><br><span class="line">        &#125;);</span><br><span class="line">        Object proxy = proxyFactory.getProxy();</span><br><span class="line">        System.out.println(((Bean) proxy).hello());</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>当需要生成一些对象的代理类进行增强需求时，用这个工具比自己手动使用动态代理等方式创建代理类方便许多。</p>
-<p>其实，<code>ProxyFactory</code>也是<code>Spring</code> <code>AOP</code>的实现方式，本文将解析一下<code>ProxyFactory</code>的实现方式。</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2020/04/23/ProxyFactory-source/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-
-  
-  <nav class="pagination">
-    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><a class="page-number" href="/page/3/">3</a><a class="extend next" rel="next" href="/page/2/"><i class="fa fa-angle-right" aria-label="下一页"></i></a>
-  </nav>
 
 
 
           </div>
           
+    <div class="comments" id="valine-comments"></div>
 
 <script>
   window.addEventListener('tabs:register', () => {
@@ -745,6 +419,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#背景"><span class="nav-number">1.</span> <span class="nav-text">背景</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#分析"><span class="nav-number">2.</span> <span class="nav-text">分析</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
