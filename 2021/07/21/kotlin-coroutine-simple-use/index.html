@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
 <meta name="theme-color" content="#222">
-<meta name="generator" content="Hexo 4.2.0">
+<meta name="generator" content="Hexo 6.3.0">
   <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
   <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
   <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
@@ -26,8 +26,9 @@
 <meta property="og:url" content="https://www.xxelin.com/2021/07/21/kotlin-coroutine-simple-use/index.html">
 <meta property="og:site_name" content="奕林的技术博客">
 <meta property="og:description" content="背景目前的业务场景中，有这样的需求：给上游提供一个批量接口，然后在本系统中，将批量请求拆成单独的请求，每个请求使用一个单独的新线程进行简单包装后，调用下游进行处理，而下游提供的服务由于处理逻辑较多，所以响应速度不快，需要大约大几百毫秒。 目前提供给上游的接口，最多一批处理一百个任务，目前每个任务都会拆成一个单独的线程，也就是上游的一次调用最多会占用100个线程，如果当前系统最大支持nQPS，下游接">
+<meta property="og:locale">
 <meta property="article:published_time" content="2021-07-21T12:37:18.000Z">
-<meta property="article:modified_time" content="2021-07-21T12:46:19.303Z">
+<meta property="article:modified_time" content="2021-07-21T12:46:19.000Z">
 <meta property="article:author" content="Elin Zhou">
 <meta property="article:tag" content="Java">
 <meta property="article:tag" content="Kotlin">
@@ -216,14 +217,14 @@
       
         <h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><p>目前的业务场景中，有这样的需求：给上游提供一个批量接口，然后在本系统中，将批量请求拆成单独的请求，每个请求使用一个单独的新线程进行简单包装后，调用下游进行处理，而下游提供的服务由于处理逻辑较多，所以响应速度不快，需要大约大几百毫秒。</p>
 <p>目前提供给上游的接口，最多一批处理一百个任务，目前每个任务都会拆成一个单独的线程，也就是上游的一次调用最多会占用100个线程，如果当前系统最大支持nQPS，下游接口的平均RT为m秒，那么光这一个接口，就需要线程池中提供100nm个线程。</p>
-<p>例：单机支持500QPS，下游每个接口响应时间为0.1s，那么waybilltemplate在这一个接口上就需要100 * 100 * 0.1 = 1000个线程。</p>
+<p>例：单机支持500QPS，下游每个接口响应时间为0.1s，那么waybilltemplate在这一个接口上就需要100 * 100 * 0.1 &#x3D; 1000个线程。</p>
 <h2 id="分析"><a href="#分析" class="headerlink" title="分析"></a>分析</h2><p>对于下游来说，渲染性能可以不断优化或通过扩容解决流量增长的问题，可以假设平均响应RT不变，此处暂且不考虑。而对于本系统来说，随着流量上涨，在不扩容情况下，单机QPS将会逐步上涨，也就意味着上文计算的线程数将不断上涨。。</p>
 <p>线程对于操作系统来说是非常昂贵的资源，对于Java应用来说，Java线程与操作系统线程是一一对应的关系，线程数不断增长主要有两个问题：</p>
 <ol>
 <li>每个线程占用固定大小的内存，线程越多，消耗内存越多。默认情况下，一个线程将分配最多1MB的栈空间</li>
 <li>虽然此处为IO密集型场景，但是线程数过多时，仍会导致CPU资源大量浪费在线程切换过程中。由于大量线程堆积势必会导致CPU load快速增长，直至影响到RT</li>
 </ol>
-<a id="more"></a>
+<span id="more"></span>
 
 <p>很多人会认为，如果流量上涨导致CPU不断上升，那扩容就行了，用更多机器来支撑。如果对于耗费CPU资源的接口来说，这样处理是合理的，但是前文也提过，这个系统属于IO密集型，所以CPU使用量应该是可以控制在一个较低的程度才对。如果这样的业务系统流量上涨导致CPU飙高、RT降低，简单通过扩容来解决问题，那从资源上是一种莫大的浪费。</p>
 <p>其实这个问题的解决，跟接受网络请求时用NIO解决BIO的缺陷思路一致，BIO需要给每个请求分配一个线程，对于目前动辄单机几千几万QPS的应用来说，分配这么多线程显然是不能的，所以出现NIO这种多路复用的思路，来降低单机的线程数。</p>
@@ -231,7 +232,7 @@
 <p>那么有没有办法在线程被阻塞的时候，反正闲着也是闲着，把当前线程利用起来，去做其他事情呢？</p>
 <p>首先能想到的解决方案就是异步调用，利用Rxjava之类。在发送完RPC请求后，立刻返回，结束当前线程调用。等下游处理完请求并响应时，RPC进行异步回调。但是使用异步代码，往往会把代码可读性写的很差。回调实现的代表语言就是<code>NodeJS</code>，<code>回调地狱</code>(<code>Callback Hell</code>)就是众多开发者对其大量回调使用的吐槽。</p>
 <p>如果想要使用更简单更直白的方式解决问题，对于golang或Python有了解的同学肯定下意识能想到——<code>协程</code>（也称<code>纤程</code>）。</p>
-<h2 id="协程"><a href="#协程" class="headerlink" title="协程"></a>协程</h2><h3 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h3><p>关于协程的介绍，引用一段<a href="https://www.liaoxuefeng.com/wiki/897692888725344/923057403198272" target="_blank" rel="noopener">廖雪峰的官方网站</a>中的描述：</p>
+<h2 id="协程"><a href="#协程" class="headerlink" title="协程"></a>协程</h2><h3 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h3><p>关于协程的介绍，引用一段<a target="_blank" rel="noopener" href="https://www.liaoxuefeng.com/wiki/897692888725344/923057403198272">廖雪峰的官方网站</a>中的描述：</p>
 <blockquote>
 <blockquote>
 <p>协程，又称微线程，纤程。英文名Coroutine。</p>
@@ -242,10 +243,10 @@
 <p>子程序调用总是一个入口，一次返回，调用顺序是明确的。而协程的调用和子程序不同。</p>
 <p>协程看上去也是子程序，但执行过程中，在子程序内部可中断，然后转而执行别的子程序，在适当的时候再返回来接着执行。</p>
 <p>注意，在一个子程序中中断，去执行其他子程序，不是函数调用，有点类似CPU的中断。比如子程序A、B：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">def A():</span><br><span class="line">    print &#39;1&#39;</span><br><span class="line">    print &#39;2&#39;</span><br><span class="line">    print &#39;3&#39;</span><br><span class="line"></span><br><span class="line">def B():</span><br><span class="line">    print &#39;x&#39;</span><br><span class="line">    print &#39;y&#39;</span><br><span class="line">    print &#39;z&#39;</span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">def A():</span><br><span class="line">    print &#x27;1&#x27;</span><br><span class="line">    print &#x27;2&#x27;</span><br><span class="line">    print &#x27;3&#x27;</span><br><span class="line"></span><br><span class="line">def B():</span><br><span class="line">    print &#x27;x&#x27;</span><br><span class="line">    print &#x27;y&#x27;</span><br><span class="line">    print &#x27;z&#x27;</span><br></pre></td></tr></table></figure>
 
 <p>假设由协程执行，在执行A的过程中，可以随时中断，去执行B，B也可能在执行过程中中断再去执行A，结果可能是：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">x</span><br><span class="line">y</span><br><span class="line">3</span><br><span class="line">z</span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">x</span><br><span class="line">y</span><br><span class="line">3</span><br><span class="line">z</span><br></pre></td></tr></table></figure>
 
 <p>但是在A中是没有调用B的，所以协程的调用比函数调用理解起来要难一些。</p>
 <p>看起来A、B的执行有点像多线程，但协程的特点在于是一个线程执行，那和多线程比，协程有何优势？</p>
@@ -259,10 +260,10 @@
 <p>目前在JVM生态下，比较主流的有如下几种协程实现方案：</p>
 <ol>
 <li>华为JDK</li>
-<li>阿里JDK——dragonwell8 <a href="https://github.com/alibaba/dragonwell8/wiki/Wisp%E6%96%87%E6%A1%A3" target="_blank" rel="noopener">Wisp2</a> </li>
-<li><a href="https://wiki.openjdk.java.net/display/loom/Main" target="_blank" rel="noopener">Loom</a></li>
-<li><a href="https://github.com/kilim/kilim" target="_blank" rel="noopener">Kilim</a></li>
-<li><a href="https://github.com/quasarframework/quasar" target="_blank" rel="noopener">Quasar</a></li>
+<li>阿里JDK——dragonwell8 <a target="_blank" rel="noopener" href="https://github.com/alibaba/dragonwell8/wiki/Wisp%E6%96%87%E6%A1%A3">Wisp2</a> </li>
+<li><a target="_blank" rel="noopener" href="https://wiki.openjdk.java.net/display/loom/Main">Loom</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/kilim/kilim">Kilim</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/quasarframework/quasar">Quasar</a></li>
 <li>Kotlin</li>
 <li>Scala</li>
 </ol>
@@ -276,17 +277,17 @@
 <h3 id="RPC对协程支持"><a href="#RPC对协程支持" class="headerlink" title="RPC对协程支持"></a>RPC对协程支持</h3><p>由于作为改造案例的RPC框架是所在公司内部的框架，所以这里不能直接展示具体代码，很多地方的代码只能用伪代码代替，见谅。</p>
 <p>因为使用的RPC框架没有提供协程支持（suspend方法），如果代码一运行到RPC接口调用处，啪，直接阻塞了，那无论是协程还是线程，都解决不了问题。所以需要先对RPC做简单改造。</p>
 <p>还好，目前使用的RPC框架虽然没有提供协程支持，但是其支持异步化调用，那稍稍进行改造，就可以将其变为suspend方法。目前市面上大多数远程服务调用都能直接或间接进行异步操作，所以并不受限于某个特殊的RPC框架。</p>
-<p>HSF文档中需要将接口改造为异步，需要注册一个新的异步接口，可以详见<a href="http://mw.alibaba-inc.com/products/hsf/_book/mw-docs/hsf-manuel-book/chapter12.html?spm=a1zco.hsf.0.0.3d6b122eSKDty8" target="_blank" rel="noopener">文档</a>，但此处用了另一种方式，也是上文提到过的<code>FutureInvocationHelper</code>工具类。</p>
+<p>HSF文档中需要将接口改造为异步，需要注册一个新的异步接口，可以详见<a target="_blank" rel="noopener" href="http://mw.alibaba-inc.com/products/hsf/_book/mw-docs/hsf-manuel-book/chapter12.html?spm=a1zco.hsf.0.0.3d6b122eSKDty8">文档</a>，但此处用了另一种方式，也是上文提到过的<code>FutureInvocationHelper</code>工具类。</p>
 <p><code>FutureInvocationHelper</code>提供了<code>futureCall</code>方法，其入参为实际的HSF方法引用，返回值为一个<code>Future</code>，调用其addListener可以注册一个回调方法，至此就实现了异步化调用。</p>
 <p>找到了HSF的异步化支持以后，就要将其改造为供协程使用的suspend方法，即将异步转化为suspend。</p>
 <p>此处需要借助Kotlin提供的<code>kotlinx.coroutines.channels.Channel</code>类，这个类有点类似与容量只有1的BlockingQueue，但其消费方法(receive)并不是一个阻塞方法，而是一个suspend方法。再向HSF注册的一个回调监听器，待服务端数据返回时将数据传入Channel中即可。</p>
 <p>简单改造，代码如下：</p>
-<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">abstract</span> <span class="class"><span class="keyword">class</span> <span class="title">RpcAsyncHelper</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">abstract</span> <span class="keyword">suspend</span> <span class="function"><span class="keyword">fun</span> <span class="type">&lt;R&gt;</span> <span class="title">invoke</span><span class="params">(action: () -&gt; <span class="type">R</span>)</span></span>: R?</span><br><span class="line"></span><br><span class="line">    <span class="keyword">companion</span> <span class="keyword">object</span> Default : RpcAsyncHelper() &#123;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">override</span> <span class="keyword">suspend</span> <span class="function"><span class="keyword">fun</span> <span class="type">&lt;R&gt;</span> <span class="title">invoke</span><span class="params">(action: () -&gt; <span class="type">R</span>)</span></span>: R? &#123;</span><br><span class="line">            <span class="keyword">val</span> channel = Channel&lt;R&gt;()</span><br><span class="line">           <span class="comment">// FutureInvocationHelper.futureCall是目前使用RPC框架的执行方法的包装工具类，返回结果类似与java.util.concurrent.Future</span></span><br><span class="line">            <span class="keyword">val</span> future = FutureInvocationHelper.futureCall(action)</span><br><span class="line">            <span class="comment">// future.addListener 用来注册RPC执行成功后的监听器</span></span><br><span class="line">            future.addListener &#123;</span><br><span class="line">                <span class="comment">// 通过future.get 可以获得RPC调用的结果</span></span><br><span class="line">                GlobalScope.launch &#123; channel.send(future.<span class="keyword">get</span>()) &#125;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">return</span> channel.receive()</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">abstract</span> <span class="keyword">class</span> <span class="title class_">RpcAsyncHelper</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">abstract</span> <span class="keyword">suspend</span> <span class="function"><span class="keyword">fun</span> <span class="type">&lt;R&gt;</span> <span class="title">invoke</span><span class="params">(action: () -&gt; <span class="type">R</span>)</span></span>: R?</span><br><span class="line"></span><br><span class="line">    <span class="keyword">companion</span> <span class="keyword">object</span> Default : RpcAsyncHelper() &#123;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">override</span> <span class="keyword">suspend</span> <span class="function"><span class="keyword">fun</span> <span class="type">&lt;R&gt;</span> <span class="title">invoke</span><span class="params">(action: () -&gt; <span class="type">R</span>)</span></span>: R? &#123;</span><br><span class="line">            <span class="keyword">val</span> channel = Channel&lt;R&gt;()</span><br><span class="line">           <span class="comment">// FutureInvocationHelper.futureCall是目前使用RPC框架的执行方法的包装工具类，返回结果类似与java.util.concurrent.Future</span></span><br><span class="line">            <span class="keyword">val</span> future = FutureInvocationHelper.futureCall(action)</span><br><span class="line">            <span class="comment">// future.addListener 用来注册RPC执行成功后的监听器</span></span><br><span class="line">            future.addListener &#123;</span><br><span class="line">                <span class="comment">// 通过future.get 可以获得RPC调用的结果</span></span><br><span class="line">                GlobalScope.launch &#123; channel.send(future.<span class="keyword">get</span>()) &#125;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">return</span> channel.receive()</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 
 
 <h3 id="业务改造"><a href="#业务改造" class="headerlink" title="业务改造"></a>业务改造</h3><p>为了方便调用，先增加了一个包装类，将原来需要调用的RPC方法包装一下方便业务中使用，代码如下：</p>
-<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">AServiceAsyncWrapper</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    <span class="keyword">val</span> aService: AService? = <span class="literal">null</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">suspend</span> <span class="function"><span class="keyword">fun</span> <span class="title">invoke</span><span class="params">(params: <span class="type">List</span>&lt;<span class="type">Parameter</span>&gt;)</span></span>: List&lt;String&gt; &#123;</span><br><span class="line">        <span class="keyword">return</span> RpcAsyncHelper.invoke &#123; aService!!.invoke(params) &#125; ?: listOf()</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">AServiceAsyncWrapper</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    <span class="keyword">val</span> aService: AService? = <span class="literal">null</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">suspend</span> <span class="function"><span class="keyword">fun</span> <span class="title">invoke</span><span class="params">(params: <span class="type">List</span>&lt;<span class="type">Parameter</span>&gt;)</span></span>: List&lt;String&gt; &#123;</span><br><span class="line">        <span class="keyword">return</span> RpcAsyncHelper.invoke &#123; aService!!.invoke(params) &#125; ?: listOf()</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 
 
@@ -298,7 +299,7 @@
 
 
 
-<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>通过上述代码，可以简单将原本同步/异步调用的RPC接口改造成协程，并且在使用时没有写异步代码时各种回调的困扰，通过同步写法实现了与异步回调几乎一致的性能。</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>通过上述代码，可以简单将原本同步&#x2F;异步调用的RPC接口改造成协程，并且在使用时没有写异步代码时各种回调的困扰，通过同步写法实现了与异步回调几乎一致的性能。</p>
 <p>通过最终的实测效果，当系统处于低水位的情况时，如果一个系统内存在大量IO密集型的多线程任务，使用协程可以降低系统的CPU使用。由于环境限制导致笔者暂时没有模拟高水位情况下的效果，也就是目前线程的频繁切换并不是系统的瓶颈，所以接口的RT并没有明显优化效果。</p>
 <p>不过需要注意，对于计算密集型的任务，由于CPU计算资源是系统的短板，所以协程并不能明显提升运行效率（多线程也不能，因为频繁切换线程仍会是无用功）。</p>
 
@@ -344,7 +345,10 @@
     <a href="/2021/02/08/mockito-cookbook/" rel="prev" title="Mockito&PowerMockito使用">
       <i class="fa fa-chevron-left"></i> Mockito&PowerMockito使用
     </a></div>
-      <div class="post-nav-item"></div>
+      <div class="post-nav-item">
+    <a href="/2023/08/02/home-network-deployment-solution/" rel="next" title="家庭网络方案（理论篇）">
+      家庭网络方案（理论篇） <i class="fa fa-chevron-right"></i>
+    </a></div>
     </div>
       </footer>
     
@@ -404,7 +408,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#背景"><span class="nav-number">1.</span> <span class="nav-text">背景</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#分析"><span class="nav-number">2.</span> <span class="nav-text">分析</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#协程"><span class="nav-number">3.</span> <span class="nav-text">协程</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#介绍"><span class="nav-number">3.1.</span> <span class="nav-text">介绍</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#协程方案"><span class="nav-number">3.2.</span> <span class="nav-text">协程方案</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#改造"><span class="nav-number">4.</span> <span class="nav-text">改造</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#RPC对协程支持"><span class="nav-number">4.1.</span> <span class="nav-text">RPC对协程支持</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#业务改造"><span class="nav-number">4.2.</span> <span class="nav-text">业务改造</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#总结"><span class="nav-number">5.</span> <span class="nav-text">总结</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%83%8C%E6%99%AF"><span class="nav-number">1.</span> <span class="nav-text">背景</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%88%86%E6%9E%90"><span class="nav-number">2.</span> <span class="nav-text">分析</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8D%8F%E7%A8%8B"><span class="nav-number">3.</span> <span class="nav-text">协程</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BB%8B%E7%BB%8D"><span class="nav-number">3.1.</span> <span class="nav-text">介绍</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8D%8F%E7%A8%8B%E6%96%B9%E6%A1%88"><span class="nav-number">3.2.</span> <span class="nav-text">协程方案</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%94%B9%E9%80%A0"><span class="nav-number">4.</span> <span class="nav-text">改造</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#RPC%E5%AF%B9%E5%8D%8F%E7%A8%8B%E6%94%AF%E6%8C%81"><span class="nav-number">4.1.</span> <span class="nav-text">RPC对协程支持</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%9A%E5%8A%A1%E6%94%B9%E9%80%A0"><span class="nav-number">4.2.</span> <span class="nav-text">业务改造</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">5.</span> <span class="nav-text">总结</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -418,14 +422,14 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">11</span>
+          <span class="site-state-item-count">12</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">8</span>
+        <span class="site-state-item-count">9</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -456,7 +460,7 @@
 <div class="copyright">
   
   &copy; 
-  <span itemprop="copyrightYear">2021</span>
+  <span itemprop="copyrightYear">2023</span>
   <span class="with-love">
     <i class="fa fa-heart"></i>
   </span>

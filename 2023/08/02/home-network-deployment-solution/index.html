@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 6.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+<link rel="stylesheet" href="//fonts.googleapis.com/css?family=PingFang SC:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"www.xxelin.com","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"default"},"back2top":{"enable":true,"sidebar":true,"scrollpercent":true},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"valine","storage":true,"lazyload":false,"nav":null,"activeClass":"valine"},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="背景最近要开始新房子的装修了，正好对目前的家里使用的网络方案也不是很满意，借着这个机会，整理一下网络的方案，也会分开说说不同场景选型的一些方案。 前几年做家庭方案的时候，基本上上限就是千兆网络，在很长一段时间，全屋无线+有线全千兆网络是家装网络的天花板。但在2023年的今天，如果你想要打造一套战未来的基础网络设施，我会推荐你考虑2.5G的网络环境，甚至10G，也就是万兆网络。 本文介绍家庭网络的理">
+<meta property="og:type" content="article">
+<meta property="og:title" content="家庭网络方案（理论篇）">
+<meta property="og:url" content="https://www.xxelin.com/2023/08/02/home-network-deployment-solution/index.html">
+<meta property="og:site_name" content="奕林的技术博客">
+<meta property="og:description" content="背景最近要开始新房子的装修了，正好对目前的家里使用的网络方案也不是很满意，借着这个机会，整理一下网络的方案，也会分开说说不同场景选型的一些方案。 前几年做家庭方案的时候，基本上上限就是千兆网络，在很长一段时间，全屋无线+有线全千兆网络是家装网络的天花板。但在2023年的今天，如果你想要打造一套战未来的基础网络设施，我会推荐你考虑2.5G的网络环境，甚至10G，也就是万兆网络。 本文介绍家庭网络的理">
+<meta property="og:locale">
+<meta property="og:image" content="https://download.huawei.com/mdl/image/download?uuid=85415edd820a4ca987a6f97daecfb9e5">
+<meta property="og:image" content="https://el-md.oss-cn-hangzhou.aliyuncs.com/img/20230802155106.png">
+<meta property="og:image" content="https://el-md.oss-cn-hangzhou.aliyuncs.com/img/20230802154955.png">
+<meta property="article:published_time" content="2023-08-02T05:56:36.000Z">
+<meta property="article:modified_time" content="2023-08-02T08:26:20.256Z">
+<meta property="article:author" content="Elin Zhou">
+<meta property="article:tag" content="网络">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://download.huawei.com/mdl/image/download?uuid=85415edd820a4ca987a6f97daecfb9e5">
+
+<link rel="canonical" href="https://www.xxelin.com/2023/08/02/home-network-deployment-solution/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-Hans'
+  };
+</script>
+
+  <title>家庭网络方案（理论篇） | 奕林的技术博客</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">奕林的技术博客</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">撸着代码唱着歌</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="reading-progress-bar"></div>
+
+  <a href="https://github.com/Elin-Zhou" class="github-corner" title="Follow me on GitHub" aria-label="Follow me on GitHub" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="https://www.xxelin.com/2023/08/02/home-network-deployment-solution/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Elin Zhou">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="奕林的技术博客">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          家庭网络方案（理论篇）
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2023-08-02 13:56:36 / 修改时间：16:26:20" itemprop="dateCreated datePublished" datetime="2023-08-02T13:56:36+08:00">2023-08-02</time>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Valine：</span>
+    
+    <a title="valine" href="/2023/08/02/home-network-deployment-solution/#valine-comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/2023/08/02/home-network-deployment-solution/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><p>最近要开始新房子的装修了，正好对目前的家里使用的网络方案也不是很满意，借着这个机会，整理一下网络的方案，也会分开说说不同场景选型的一些方案。</p>
+<p>前几年做家庭方案的时候，基本上上限就是千兆网络，在很长一段时间，全屋无线+有线全千兆网络是家装网络的天花板。但在2023年的今天，如果你想要打造一套战未来的基础网络设施，我会推荐你考虑2.5G的网络环境，甚至10G，也就是万兆网络。</p>
+<p>本文介绍家庭网络的理论方案，包括无线方案、永久链路的选择等等方面介绍。</p>
+<span id="more"></span>
+
+<h2 id="方案选择"><a href="#方案选择" class="headerlink" title="方案选择"></a>方案选择</h2><h3 id="无线方案"><a href="#无线方案" class="headerlink" title="无线方案"></a>无线方案</h3><p>无线方案的选择，主要为户型较大、户型较复杂（如狭长型、承重墙较多等）、楼层较多、网络要求较高等场景提供的，如果户型不大且对边角网络要求不高，只需要买一台功率较大的路由器放在房子中心位置，那么一般来说，在边角位置也能搜索到2.4G网络，对于这类场景，可以跳过此章节。</p>
+<p>有些人会认为，需要什么无线方案，只要多买几个路由器放在家里的不同位置，用同一个WiFi名称（SSID）和相同无线密码，不就是可以实现全屋WiFi覆盖了吗？这种方案的确可以实现全屋覆盖的诉求，但是体验一定是不够好的。因为这样部署，如果你的移动设备连着A路由器走到B路由器的旁边，并且在此处还可以搜到A的信号的话，移动设备并不会自动断开A的连接去连接B，哪怕A的信号已经非常微弱了。因为你的移动设备是不知道此处还有一个更适合的B路由器在提供服务，这就会出现你明明站在路由器边上，仍然上不了网的情况。遇到这种情况，往往需要手动去断开WiFi，然后等移动设备自动连上信号更强的那台设备。</p>
+<p>对路由器略有研究的同学可能会想到，路由器里是有一个设置可以实现自动剔除弱信号设备，设置一个信号阈值，如果信号比阈值弱，将会自动把设备踢下线，那么移动设备就可以再次连接信号更强的路由器了。这个方案比上一个的确更有，降低了需要手动切换网络的概率，但是有两个比较明显的问题：</p>
+<ol>
+<li>剔除阈值比较难定。因为家庭环境比较复杂，有墙体或者其他的阻隔，很难保证在剔除以后立刻有一个更适合的路由器能接管，例如一些边缘位置，不大可能再去布置一台路由器来补充信号覆盖，本来信号弱一点至少能用，剔除了以后就彻底不能用了。</li>
+<li>无法实现无缝衔接。因为这种形式，本质上还是断开上一个路由器，搜索下一个并且连接，那势必会导致网络的抖动，你想象一下你正在视频通话或者正在手游中厮杀，网络要断几秒几十秒不等的感受。</li>
+</ol>
+<p>铺垫够多了，直接说一下解决方案：WiFi漫游，关于什么是WiFi漫游和为什么需要，直接引用华为官网的介绍</p>
+<blockquote>
+<h4 id="什么是WiFi漫游？"><a href="#什么是WiFi漫游？" class="headerlink" title="什么是WiFi漫游？"></a>什么是WiFi漫游？</h4><p>WiFi漫游是指无线终端STA在同属一个ESS（Extended Service Set）的不同AP的覆盖范围之间移动且保持用户业务不中断的行为。<br><a target="_blank" rel="noopener" href="https://info.support.huawei.com/info-finder/encyclopedia/zh/WLAN.html">WLAN</a>网络的最大优势就是STA不受物理介质的影响，可以在WLAN覆盖范围内四处移动并且能够保持业务不中断。某一区域内多个AP使用相同的<a target="_blank" rel="noopener" href="https://info.support.huawei.com/info-finder/encyclopedia/zh/SSID.html">SSID</a>（<a target="_blank" rel="noopener" href="https://info.support.huawei.com/info-finder/encyclopedia/zh/SSID.html">Service Set Identifier</a>），那么在该区域内用户看到的无线网络标识是同一个。当STA从一个AP覆盖区域移动到另外一个AP覆盖区域时，利用WiFi漫游技术可以实现STA用户业务的平滑切换。</p>
+<h4 id="为什么要有WiFi漫游？"><a href="#为什么要有WiFi漫游？" class="headerlink" title="为什么要有WiFi漫游？"></a>为什么要有WiFi漫游？</h4><p>一台AP的无线信号只能覆盖有限的区域范围。想象一下，如果没有WiFi漫游，那么当我们在<a target="_blank" rel="noopener" href="https://info.support.huawei.com/info-finder/encyclopedia/zh/WLAN.html">WLAN</a>网络中移动到AP信号弱的区域时，我们的无线终端（下文简称为STA，例如手机、平板、笔记本电脑等）与AP之间的网络将会断开。对于语音、视频等业务，网络断开将严重影响我们的使用体验。</p>
+<p>而WiFi漫游的出现正是为了解决这一问题。如下图所示，AP1和AP2提供相同的接入网络服务（<a target="_blank" rel="noopener" href="https://info.support.huawei.com/info-finder/encyclopedia/zh/SSID.html">SSID</a>都是huawei-net）。STA移动到两台AP覆盖范围的临界区域时，STA与新的AP2进行关联并与原有AP1断开关联，且在此过程中保持不间断的网络连接。简单来说，就如同手机的移动通话功能，手机从一个基站的覆盖范围移动到另一个基站的覆盖范围时，能提供不间断、无缝的通话能力。</p>
+<p><img src="https://download.huawei.com/mdl/image/download?uuid=85415edd820a4ca987a6f97daecfb9e5" alt="WiFi漫游"><br><em>WiFi漫游</em></p>
+<p>WLAN网络的最大优势就是STA不受物理介质的影响，可以在WLAN覆盖范围内四处移动并且能够保持业务不中断。WiFi漫游提升了用户使用无线网络的体验，解决了以下问题：</p>
+<ul>
+<li>保证用户IP地址不变，漫游后仍能访问初次上线时关联的网络，且所能执行的业务保持不变。</li>
+<li>避免漫游过程中用户的认证时间过长而导致数据丢包甚至业务中断。</li>
+</ul>
+</blockquote>
+<p>废话不多说了，目前家用实现WiFi漫游的主要是两种方案：Mesh 组网和 AC+AP</p>
+<h4 id="Mesh-组网"><a href="#Mesh-组网" class="headerlink" title="Mesh 组网"></a>Mesh 组网</h4><p>Mesh组网是指多个路由器（一般情况是同平台的）直接，厂家开发了一套通讯协议，可以将若干路由器划分为主子路由器，所有子路由器接入主路由网络，将子路由摆放到家里不同的位置，来实现全屋WiFi覆盖。而主路由将可以协调各子路由（包括它自己）跟移动设备，保证移动设备一直连接在最佳路由器下。如果设备在移动，需要切换连接的路由器，也可以实现无缝切换，不影响设备的正常使用。</p>
+<img src="https://el-md.oss-cn-hangzhou.aliyuncs.com/img/20230802155106.png" alt="image-20230802150537815" style="zoom:30%;" />
+
+<p>Mesh组网有个最大的优点是可以实现无线Mesh，即子路由与主路由之间的连接也可以是无线的，不需要通过网线连接，这种方式叫无线回程。听起来很美好是不是，但是无线回程将会损失一半的无线带宽，例如厂商宣称5G频段可以实现3000Mbps速率，如果使用了无线回程，那么5G频段下理论最大速率就只有1500Mbps了，如果非要使用这种方式，建议选择有两个5G频段的路由器，那么你仍可以使用一个满血的5G频段。</p>
+<p>Mesh还有一个优点就是成本较低，此类路由器就是普通路由器，你可以先买一个回来使用，如果觉得信号不够好，再买若干个补充即可，以红米AX3000举例，两百多一个，一般家庭放三个基本可以实现全覆盖。如果对速率有更高要求，AX6000，AX9000也都可以考虑的。</p>
+<p>Mesh的主要是如下几点：</p>
+<ol>
+<li>子设备数量一般不多，例如小米限制最多9个子路由，大户型会不够用</li>
+<li>路由器体积比较大，一般也说不上好看，可能跟你的家装风格冲突</li>
+<li>需要额外供电，没有办法直接通过网线供电，要多拖一根小尾巴（至少目前我还没有见过poe供电的子路由）</li>
+</ol>
+<h4 id="AC-AP"><a href="#AC-AP" class="headerlink" title="AC + AP"></a>AC + AP</h4><p>AC + AP 跟mesh中的主子路由有点类似，有一个AC控制若干个AP来实现WiFi漫游。而AC控制器有时候会跟路由器集成在同一台设备中，采用此方式组网，使用</p>
+<img src="https://el-md.oss-cn-hangzhou.aliyuncs.com/img/20230802154955.png" alt="image-20230802150537815" style="zoom:30%;" />
+
+<p>要说ACAP的优点，描述再多不如说他的应用场景：企业无线的唯一解决方案。企业级解决方案说明这个方案是能兼顾稳定性和可扩展性的，不过有些时候企业级也不是优点，例如华为的AirEngine方案，普通的用户根本玩不明白，是不适合家用的。</p>
+<p>ACAP适合对网络稳定性要求的场景，并不是说所有的ACAP都比mesh稳定，只是说ACAP的上限比mesh更高；而且mesh对子路由的数量是有限制的，如果你的家里足够大，那么也只能使用ACAP方案</p>
+<h4 id="选择建议"><a href="#选择建议" class="headerlink" title="选择建议"></a>选择建议</h4><ol>
+<li>如果户型简单，面积不大，对网络要求也一般，那么在中心位置放一台性能强劲的路由器即可</li>
+<li>除1的情况外，如果是一般的平层或不算太大的跃层，并且也不想太折腾的，个人觉得mesh组网已经足够，除非你觉得家里摆各种奇形怪状的路由器不好看</li>
+<li>如果你的家里足够大，尤其是有很多层，甚至希望在花园中也有满格网络覆盖，不要挣扎了，用ACAP吧</li>
+</ol>
+<h3 id="永久链路"><a href="#永久链路" class="headerlink" title="永久链路"></a>永久链路</h3><h4 id="内网带宽"><a href="#内网带宽" class="headerlink" title="内网带宽"></a>内网带宽</h4><p>关于带宽，其实开头已经讲了，2023年我建议对网络有追求的同学，2.5G起步，土豪可以上10G。有人会说，现在外网最多也就1000Mbps，内网这么快有什么用？且不说很多人家里会考虑NAS、影音系统等，光说运营商带宽，2000Mbps已经在小范围运行了（目前咨询杭州电信和联通都用FTTR 2000M的服务了），到时候内网千兆将是你家的瓶颈。</p>
+<p>对于爱折腾的玩家来说，内网带宽更是能让你如鱼得水的基础建设，你的所有文件都可以存储在NAS中，其他设备本机只需要很小的磁盘空间，因为随时都能快速访问数TB的NAS，高清的蓝光电影也可以直接在电视上播放。</p>
+<p>所以我本次装修的方案，将会以2.5G为主，并保留后续升级10G甚至更大带宽的可能性。</p>
+<h4 id="布线"><a href="#布线" class="headerlink" title="布线"></a>布线</h4><p>很多同学在新房装修的时候，大概听说过网络分为多少类的，觉得数字越大越好，直接上6类甚至7类的；也包括我上一套精装修房子出售的时候，买家会关心开发商用的是几类线。此处直接说结论，50m以内普通质量合格的五类网线基本能跑到万兆。</p>
+<p>所以如果你是精装的房子，一般情况下，我不会建议你去更换网线，除非你对网络波动特别敏感，或者准备上10G以上的内网。</p>
+<p>但如果是新装修的，我会建议你使用6类普通网线+多芯单模光纤。</p>
+<p>先说网线，6类网线家用足以，如果你对稳定性有要求，可以上超六类带屏蔽层的，如果上了超六，务必确认施工师傅的专业性，要用超六的水晶头、做好接地、用正确的方式打水晶头&#x2F;网络模块。最后一条很重要，因为购买并使用对应水晶头很容易，接地的话选三插的交换机也不难，但是正确的方式打水晶头&#x2F;网络模块并不是每个师傅都会的，因为这类网线的屏蔽层（有些还会有地线）需要正确安装才能起到屏蔽的作用。</p>
+<p>光纤的作用一般是战未来的，尤其是光纤非常便宜，所以预埋上也花不了多少钱，尤其是一根N芯光纤相当于N根光纤的集合，拥有它，将拥有无限未来。光纤还有一个作用是连接多个交换机的，对于多层用户会很有用，这个后面会具体展开说。</p>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div>如果这篇文章对你有帮助，可以请作者喝杯咖啡~</div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    打赏
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/images/wechatpay.JPG" alt="Elin Zhou 微信支付">
+        <p>微信支付</p>
+      </div>
+      
+      <div style="display: inline-block;">
+        <img src="/images/alipay.JPG" alt="Elin Zhou 支付宝">
+        <p>支付宝</p>
+      </div>
+
+  </div>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E7%BD%91%E7%BB%9C/" rel="tag"># 网络</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2021/07/21/kotlin-coroutine-simple-use/" rel="prev" title="使用协程进行简单系统优化">
+      <i class="fa fa-chevron-left"></i> 使用协程进行简单系统优化
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="valine-comments"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%83%8C%E6%99%AF"><span class="nav-number">1.</span> <span class="nav-text">背景</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%96%B9%E6%A1%88%E9%80%89%E6%8B%A9"><span class="nav-number">2.</span> <span class="nav-text">方案选择</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%97%A0%E7%BA%BF%E6%96%B9%E6%A1%88"><span class="nav-number">2.1.</span> <span class="nav-text">无线方案</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%B0%B8%E4%B9%85%E9%93%BE%E8%B7%AF"><span class="nav-number">2.2.</span> <span class="nav-text">永久链路</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Elin Zhou</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">12</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">9</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+        <div class="back-to-top motion-element">
+          <i class="fa fa-arrow-up"></i>
+          <span>0%</span>
+        </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Elin Zhou</span>
+</div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+  <script defer src="/lib/three/three.min.js"></script>
+    <script defer src="/lib/three/three-waves.min.js"></script>
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+
+<script>
+NexT.utils.loadComments(document.querySelector('#valine-comments'), () => {
+  NexT.utils.getScript('//unpkg.com/valine/dist/Valine.min.js', () => {
+    var GUEST = ['nick', 'mail', 'link'];
+    var guest = 'nick,mail';
+    guest = guest.split(',').filter(item => {
+      return GUEST.includes(item);
+    });
+    new Valine({
+      el         : '#valine-comments',
+      verify     : false,
+      notify     : true,
+      appId      : 'O8tbbpNbwImnAhnEHIQT6gue-gzGzoHsz',
+      appKey     : 'OQR4QQj44MeKsBbdBEfneTeA',
+      placeholder: "Just go go",
+      avatar     : 'mm',
+      meta       : guest,
+      pageSize   : '10' || 10,
+      visitor    : false,
+      lang       : '' || 'zh-cn',
+      path       : location.pathname,
+      recordIP   : true,
+      serverURLs : ''
+    });
+  }, window.Valine);
+});
+</script>
+
+</body>
+</html>

@@ -1,37 +1,51 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
+    <loc>https://www.xxelin.com/2023/08/02/home-network-deployment-solution/</loc>
+    <lastmod>2023-08-02</lastmod>
+  </url>
+  <url>
+    <loc>https://www.xxelin.com/2020/04/17/How-to-Synchronize-Blocks-by-the-Value-of-the-Object-in-Java/</loc>
+    <lastmod>2023-08-02</lastmod>
+  </url>
+  <url>
+    <loc>https://www.xxelin.com/2020/04/15/java-skills/</loc>
+    <lastmod>2022-05-30</lastmod>
+  </url>
+  <url>
+    <loc>https://www.xxelin.com/2020/05/29/SpringBoot-BeanDefinition-loading/</loc>
+    <lastmod>2021-08-04</lastmod>
+  </url>
+  <url>
     <loc>https://www.xxelin.com/2021/07/21/kotlin-coroutine-simple-use/</loc>
     <lastmod>2021-07-21</lastmod>
-  </url>  <url>
-    <loc>https://www.xxelin.com/2020/04/15/java-skills/</loc>
-    <lastmod>2021-03-12</lastmod>
-  </url>  <url>
+  </url>
+  <url>
     <loc>https://www.xxelin.com/2021/02/08/mockito-cookbook/</loc>
     <lastmod>2021-03-08</lastmod>
-  </url>  <url>
-    <loc>https://www.xxelin.com/2020/04/17/How-to-Synchronize-Blocks-by-the-Value-of-the-Object-in-Java/</loc>
-    <lastmod>2021-03-08</lastmod>
-  </url>  <url>
-    <loc>https://www.xxelin.com/2020/05/29/SpringBoot-BeanDefinition-loading/</loc>
-    <lastmod>2020-05-29</lastmod>
-  </url>  <url>
+  </url>
+  <url>
     <loc>https://www.xxelin.com/2020/04/26/BeanFactory-get-bean/</loc>
     <lastmod>2020-04-27</lastmod>
-  </url>  <url>
+  </url>
+  <url>
     <loc>https://www.xxelin.com/2020/04/15/spring-extend-interface/</loc>
     <lastmod>2020-04-27</lastmod>
-  </url>  <url>
+  </url>
+  <url>
     <loc>https://www.xxelin.com/2020/04/23/ProxyFactory-source/</loc>
     <lastmod>2020-04-24</lastmod>
-  </url>  <url>
+  </url>
+  <url>
     <loc>https://www.xxelin.com/2020/04/15/spring-utils/</loc>
     <lastmod>2020-04-23</lastmod>
-  </url>  <url>
+  </url>
+  <url>
     <loc>https://www.xxelin.com/2020/04/15/database-performance-optimization/</loc>
     <lastmod>2020-04-15</lastmod>
-  </url>  <url>
+  </url>
+  <url>
     <loc>https://www.xxelin.com/2020/04/15/bean-post-processor-practice/</loc>
     <lastmod>2020-04-15</lastmod>
   </url>
-</urlset>
+</urlset> 
